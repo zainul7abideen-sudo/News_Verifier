@@ -1,0 +1,119 @@
+{
+  "news": [
+    {
+      "id": "news-1",
+      "title": "Major Infrastructure Project Announced for Highway Expansion in Uttar Pradesh",
+      "source": "NDTV India",
+      "type": "News Channels",
+      "category": "National",
+      "timestamp": "30 mins ago",
+      "content": "The Ministry of Road Transport and Highways has cleared a major budget for phase 3 of the corridor expansion.",
+      "factChecked": true,
+      "verdict": "True",
+      "confidence": 96,
+      "explanation": "Verified directly with Ministry of Road Transport and Highways official press release #MoRTH-2026-09.",
+      "image": "https://images.unsplash.com/photo-1545143333-11cb50c33b9c?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "news-2",
+      "title": "Claims of New Currency Notes Starting from Next Month Found to be Fabricated",
+      "source": "PIB Fact Check",
+      "type": "Social Media",
+      "category": "Trending",
+      "timestamp": "2 hours ago",
+      "content": "Viral messages on WhatsApp claiming the RBI is issuing new ₹5000 notes are completely false.",
+      "factChecked": true,
+      "verdict": "False",
+      "confidence": 99,
+      "explanation": "Debunked by Reserve Bank of India and Press Information Bureau official release. No such currency exists.",
+      "image": "https://images.unsplash.com/photo-1627000086207-77e8fd117bcf?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "news-3",
+      "title": "Tech Innovation Hub Setup Planned in Bengaluru by Global Tech Giant",
+      "source": "The Hindu",
+      "type": "Newspapers",
+      "category": "Technology",
+      "timestamp": "4 hours ago",
+      "content": "A leading Silicon Valley company is in final stages of signing an MOU for a 50-acre R&D campus.",
+      "factChecked": true,
+      "verdict": "True",
+      "confidence": 92,
+      "explanation": "Confirmed through State IT Ministry statements and corporate investor relations disclosures.",
+      "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "news-4",
+      "title": "Controversial Video Clip from Recent Rally Shared Out of Context",
+      "source": "Republic World",
+      "type": "News Channels",
+      "category": "Politics",
+      "timestamp": "1 hour ago",
+      "content": "A video clip circulating widely shows a leader making a statement; however, the full video reveals a different context.",
+      "factChecked": true,
+      "verdict": "Misleading",
+      "confidence": 88,
+      "explanation": "Video editing omitted the preceding 45 seconds of qualifying speech, altering the contextual meaning.",
+      "image": "https://images.unsplash.com/photo-1540910419892-f7ef71693045?auto=format&fit=crop&w=800&q=80"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "tkt-1032",
+      "status": "Pending",
+      "createdAt": "2026-09-16T16:50:11.032Z",
+      "claimText": "Test ticket for unverified social post",
+      "method": "video",
+      "submittedBy": "test_student"
+    },
+    {
+      "id": "tkt-101",
+      "claimText": "Viral video claiming government announces free laptops for all university students.",
+      "method": "video",
+      "submittedBy": "student_99",
+      "status": "Resolved",
+      "verdict": "False",
+      "createdAt": "2026-09-16T15:50:10.399Z"
+    }
+  ],
+  "verifications": [
+    {
+      "id": "verif-1789577411022",
+      "claim": "Ministry announced budget for highway expansion infrastructure",
+      "method": "text",
+      "verdict": "True",
+      "confidence": 94,
+      "source": "Ministry of Road Transport and Highways",
+      "explanation": "Matches confirmed budgetary allocations under the National Infrastructure Pipeline (NIP).",
+      "sensationalismIndex": 0,
+      "verifiedAt": "2026-09-16T16:50:11.022Z"
+    },
+    {
+      "id": "verif-1789577411013",
+      "claim": "Viral claim that RBI is issuing new 5000 rupee notes next month",
+      "method": "text",
+      "verdict": "False",
+      "confidence": 99,
+      "source": "RBI / PIB Fact Check",
+      "explanation": "RBI has officially clarified that no ₹5000 denomination currency notes have been printed or authorized.",
+      "sensationalismIndex": 33,
+      "verifiedAt": "2026-09-16T16:50:11.013Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "usr-admin",
+      "username": "admin",
+      "email": "admin@sra-factcheck.org",
+      "role": "admin",
+      "password": "Admin@SecurePass2026"
+    }
+  ],
+  "analytics": {
+    "totalClaimsVerified": 1422,
+    "trueClaims": 853,
+    "falseClaims": 419,
+    "misleadingClaims": 150,
+    "accuracyRate": 98.4
+  }
+}
