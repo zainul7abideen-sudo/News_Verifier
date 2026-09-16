@@ -16,7 +16,7 @@ import {
 import './App.css';
 // import { api } from './api';
 
-const DEFAULT_ADMIN = { userId: 'Zainul9142', password: 'Zainul..@8102' };
+const DEFAULT_ADMIN = { userId: 'admin', password: 'Admin@SecurePass2026' };
 
 const MOCK_NEWS = [
   {
