@@ -1,7 +1,8 @@
-﻿# 📰 SRA Fact Checker — AI-Powered Multimodal News & Claim Verification Platform
+# 📰 SRA Fact Checker — AI-Powered Multimodal News & Claim Verification Platform
 
 [![React](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-7.3-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Deploy to Netlify](https://img.shields.io/badge/Deploy-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://app.netlify.com)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend%20Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
@@ -81,6 +82,21 @@ Open your browser at `http://localhost:5173`.
 ```bash
 npm run build
 ```
+
+---
+
+## 🌐 Deploy to Netlify
+
+TruthGuard is fully configured with `netlify.toml` for seamless 1-click Netlify deployments:
+
+1. Push your repository to GitHub.
+2. Log in to [Netlify](https://app.netlify.com) and click **"Add new site" > "Import an existing project"**.
+3. Select `SRA-News-Verification-Platform`.
+4. Netlify will automatically detect:
+   - **Build command:** `npm run build`
+   - **Publish directory:** `dist`
+5. *(Optional)* Add your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in **Site Configuration > Environment Variables** (defaults are built-in for instant preview).
+6. Click **"Deploy Site"** — your live fact-checking platform is deployed!
 
 ---
 
