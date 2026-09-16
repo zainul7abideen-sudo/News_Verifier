@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
@@ -7,6 +7,7 @@ const newsRoutes = require('./routes/news');
 const ticketsRoutes = require('./routes/tickets');
 const authRoutes = require('./routes/auth');
 const analyticsRoutes = require('./routes/analytics');
+const studentsRoutes = require('./routes/students');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
 });
 
 // API Routes
+app.use('/api/students', studentsRoutes);
 app.use('/api/factcheck', factCheckRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/tickets', ticketsRoutes);

@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const DB_FILE = path.join(__dirname, 'store.json');
@@ -173,6 +173,69 @@ class Database {
   getAnalytics() {
     return this.read().analytics || INITIAL_DATA.analytics;
   }
+
+  // Student Fact-Checkers Data Store
+  getStudents() {
+    const data = this.read();
+    if (!data.students) {
+      data.students = [
+        {
+          id: 'stu-fact-001',
+          student_id: 'STU-JOURN-2026-01',
+          fullName: 'Tanvi Agarwal',
+          email: 'tanvi.agarwal@journalism-inst.edu.in',
+          university: 'Indian Institute of Mass Communication (IIMC)',
+          course: 'Digital Media & Investigative Journalism',
+          semester: 4,
+          verifiedClaimsCount: 32,
+          flaggedMisinfoCount: 19,
+          accuracyRating: 98.2,
+          badgeLevel: 'Senior Fact-Checker',
+          createdAt: '2026-01-12T10:00:00.000Z'
+        },
+        {
+          id: 'stu-fact-002',
+          student_id: 'STU-JOURN-2026-02',
+          fullName: 'Kabir Singhal',
+          email: 'kabir.singhal@journalism-inst.edu.in',
+          university: 'Asian College of Journalism (ACJ)',
+          course: 'Data Journalism & AI Media Auditing',
+          semester: 4,
+          verifiedClaimsCount: 24,
+          flaggedMisinfoCount: 15,
+          accuracyRating: 96.5,
+          badgeLevel: 'Certified Analyst',
+          createdAt: '2026-01-15T14:30:00.000Z'
+        }
+      ];
+      this.write(data);
+    }
+    return data.students;
+  }
+
+  getStudentById(id) {
+    const students = this.getStudents();
+    return students.find(s => s.id === id || s.student_id === id) || null;
+  }
+
+  addStudent(studentData) {
+    const data = this.read();
+    if (!data.students) data.students = [];
+    const item = {
+      id: `stu-fact-${Date.now()}`,
+      student_id: studentData.student_id || `STU-JOURN-2026-${Math.floor(100 + Math.random() * 900)}`,
+      verifiedClaimsCount: 0,
+      flaggedMisinfoCount: 0,
+      accuracyRating: 100.0,
+      badgeLevel: 'Junior Fact-Checker',
+      createdAt: new Date().toISOString(),
+      ...studentData
+    };
+    data.students.unshift(item);
+    this.write(data);
+    return item;
+  }
 }
 
 module.exports = new Database();
+
