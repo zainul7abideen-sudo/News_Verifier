@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SRA TruthGuard — Product Requirements Document (PRD)</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 16mm 14mm 18mm 14mm;
+      @bottom-right {
+        content: "Page " counter(page);
+        font-size: 8pt;
+        color: #64748b;
+      }
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 10pt;
+    }
+    .cover-page {
+      page-break-after: always;
+      height: 94vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 40px;
+      background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 60%, #1e293b 100%);
+      color: #ffffff;
+    }
+    .cover-badge {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.25);
+      color: #93c5fd;
+      border: 1px solid rgba(147, 197, 253, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 9pt;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .cover-title {
+      font-size: 28pt;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #f8fafc;
+      margin-bottom: 12px;
+    }
+    .cover-title span {
+      color: #60a5fa;
+    }
+    .cover-subtitle {
+      font-size: 13pt;
+      color: #cbd5e1;
+      line-height: 1.4;
+      max-width: 600px;
+      margin-bottom: 30px;
+    }
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .cover-meta-item strong {
+      display: block;
+      color: #94a3b8;
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+    .cover-meta-item span {
+      font-size: 10pt;
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+    .page {
+      page-break-after: always;
+      padding-top: 10px;
+    }
+    .page:last-child {
+      page-break-after: auto;
+    }
+    h1 {
+      font-size: 16pt;
+      font-weight: 800;
+      color: #0f172a;
+      border-bottom: 2px solid #3b82f6;
+      padding-bottom: 6px;
+      margin-top: 22px;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+    h3 {
+      font-size: 10.5pt;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 12px;
+      margin-bottom: 6px;
+    }
+    p {
+      margin-bottom: 10px;
+      color: #334155;
+      text-align: justify;
+    }
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 12px;
+      color: #334155;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    .table-container {
+      margin: 12px 0;
+      page-break-inside: avoid;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 7px 10px;
+      border: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    th {
+      background: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 7.5pt;
+      letter-spacing: 0.5px;
+    }
+    tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    .callout {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin: 12px 0;
+      font-size: 9pt;
+      color: #166534;
+      page-break-inside: avoid;
+    }
+    .callout-info {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      color: #1e40af;
+    }
+    .callout-warning {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      color: #92400e;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-true { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .badge-false { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .badge-misleading { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+    .footer-doc {
+      font-size: 7.5pt;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 8px;
+      margin-top: 24px;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover-page">
+    <div>
+      <div class="cover-badge">Product Requirements Document (PRD)</div>
+      <h1 class="cover-title">SRA <span>TruthGuard</span></h1>
+      <div class="cover-subtitle">
+        AI-Powered Multimodal Media Verification, Deepfake Detection & Disinformation Intelligence Platform
+      </div>
+    </div>
+
+    <div>
+      <div class="cover-meta-grid">
+        <div class="cover-meta-item">
+          <strong>Document ID</strong>
+          <span>PRD-SRA-2026-v2.1</span>
+        </div>
+        <div class="cover-meta-item">
+          <strong>Lead Architect / Admin</strong>
+          <span>Md Ekbal (System Administrator)</span>
+        </div>
+        <div class="cover-meta-item">
+          <strong>AI Intelligence Core</strong>
+          <span>Google AI Studio (Gemini Engine)</span>
+        </div>
+        <div class="cover-meta-item">
+          <strong>Release Status</strong>
+          <span>Production Ready (v2.1.0)</span>
+        </div>
+        <div class="cover-meta-item">
+          <strong>Target Deployment</strong>
+          <span>Full-Stack Cloud / Netlify / Node Express</span>
+        </div>
+        <div class="cover-meta-item">
+          <strong>Effective Date</strong>
+          <span>September 2026</span>
+        </div>
+      </div>
+      <p style="margin-top: 20px; font-size: 8pt; color: #94a3b8; text-align: right;">
+        CONFIDENTIAL & PROPRIETARY — SRA MEDIA INTEGRITY NETWORK
+      </p>
+    </div>
+  </div>
+
+  <!-- TABLE OF CONTENTS & EXECUTIVE SUMMARY -->
+  <div class="page">
+    <h1>1. Executive Summary & Vision</h1>
+    <p>
+      The <strong>SRA TruthGuard</strong> platform is an advanced media verification ecosystem designed to combat the exponential surge of digital disinformation, manipulated circulars, coordinated fake news campaigns, and multimodal deepfakes circulating across public discourse and social messaging platforms.
+    </p>
+    <p>
+      By combining <strong>Google AI Studio (Gemini) Intelligence</strong> with authoritative ground-truth repositories (Press Information Bureau (PIB), Reserve Bank of India (RBI), Government Gazettes, and global news wire feeds), SRA TruthGuard automates the end-to-end fact-checking pipeline. It provides instant veracity classification (🟢 True, 🔴 False, 🟡 Misleading), confidence scoring (0–100%), sensationalism indexing, and forensic step auditing for journalists, editors, analysts, and citizens.
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Core Mission:</strong> Democratize high-precision fact-checking through institutional-grade AI, empowering newsrooms and citizens with real-time veracity forensics and transparent verification logs.
+    </div>
+
+    <h1>2. Product Objectives & Target Metrics</h1>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Objective</th>
+            <th>Description</th>
+            <th>Target KPI / Metric</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Verification Accuracy</strong></td>
+            <td>Grounded cross-referencing against official agencies & news archives</td>
+            <td>&gt; 96.0% accuracy seal</td>
+          </tr>
+          <tr>
+            <td><strong>AI Inference Latency</strong></td>
+            <td>Real-time multimodal claim analysis via Google Gemini</td>
+            <td>&lt; 1.5 seconds response time</td>
+          </tr>
+          <tr>
+            <td><strong>Sensationalism Scoring</strong></td>
+            <td>NLP heuristic clickbait and emotional intensity assessment</td>
+            <td>0–100 metric index</td>
+          </tr>
+          <tr>
+            <td><strong>Live News Aggregation</strong></td>
+            <td>Real-time multi-channel feed monitoring & 1-click verification</td>
+            <td>5+ major feeds (NDTV, BBC, CNN, TOI)</td>
+          </tr>
+          <tr>
+            <td><strong>Citizen Submission</strong></td>
+            <td>Public query submission & resolution ticketing pipeline</td>
+            <td>100% submission traceability</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h1>3. User Personas & Target Audiences</h1>
+    <ul>
+      <li><strong>Investigative Journalists & Fact-Checkers:</strong> Need rapid verification of viral WhatsApp/Telegram claims, video metadata auditing, and authoritative citation sources for newsroom publishing.</li>
+      <li><strong>Newsroom Editors & Desk In-Charges:</strong> Require live news monitoring, veracity badge confirmation, and team workflow management before broadcasting stories.</li>
+      <li><strong>Journalism & Media Students:</strong> Trainees learning investigative verification, participating in community claim auditing, and earning Junior/Senior Fact-Checker certifications.</li>
+      <li><strong>General Citizens & Readers:</strong> Users seeking to verify suspicious forwarded messages, government job circulars, tax policy rumors, and digital media authenticity.</li>
+      <li><strong>System Administrators:</strong> Staff members overseeing user accounts, security settings, system logs, query tickets, and verified news repositories.</li>
+    </ul>
+  </div>
+
+  <!-- FUNCTIONAL REQUIREMENTS -->
+  <div class="page">
+    <h1>4. Functional Requirements & System Modules</h1>
+
+    <h2>4.1. Multimodal Verification Intake Engine</h2>
+    <p>
+      The platform supports 4 distinct verification input modalities accessible via the <strong>DeepCheck AI Verifier</strong>:
+    </p>
+    <ul>
+      <li><strong>Viral Text / Headline Mode:</strong> Accepts textual claims, social media forwards, speech quotes, and headline transcripts.</li>
+      <li><strong>Deepfake Video & Media Mode:</strong> Analyzes video descriptions, audio transcripts, and spatial-temporal artifact patterns.</li>
+      <li><strong>Official Circular / PDF Mode:</strong> Evaluates recruitment notices, ministerial orders, tax policy announcements, and gazette scans.</li>
+      <li><strong>Web Article Link Mode:</strong> Ingests external URLs for cross-referencing against verified press bureau feeds.</li>
+    </ul>
+
+    <h2>4.2. Google AI Studio (Gemini) Intelligence Core</h2>
+    <p>
+      The AI layer is powered by Google AI Studio Gemini API with an automated model resilience hierarchy:
+    </p>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Priority</th>
+            <th>Model Candidate</th>
+            <th>Primary Function</th>
+            <th>Fallback Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1 (Primary)</td>
+            <td><code>gemini-3-flash-preview</code></td>
+            <td>Ultra-fast multi-channel stance detection & JSON reasoning</td>
+            <td>Fails over to Priority 2 on timeout</td>
+          </tr>
+          <tr>
+            <td>2 (Secondary)</td>
+            <td><code>gemini-3.5-flash</code></td>
+            <td>High-throughput veracity evaluation & explanation synthesis</td>
+            <td>Fails over to Priority 3 on 503 spike</td>
+          </tr>
+          <tr>
+            <td>3 (Tertiary)</td>
+            <td><code>gemini-3.1-flash-lite</code></td>
+            <td>Low-latency entity extraction & contextual grounding</td>
+            <td>Fails over to Local Heuristics</td>
+          </tr>
+          <tr>
+            <td>4 (Local Fallback)</td>
+            <td>SRA Rule-Based Heuristics</td>
+            <td>Instant deterministic matching against ground-truth registry</td>
+            <td>Guarantees 100% uptime</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>4.4. Dynamic Theme Engine & Visual Ambience System</h2>
+    <p>
+      The platform features an integrated <strong>Wallpaper Theme Engine</strong> supporting 4 custom aesthetic identities:
+    </p>
+    <ul>
+      <li><strong>Cosmic Earth ("A More Truthful World"):</strong> Orbit view with sunbeam glow, cyan accent lighting, and atmospheric depth.</li>
+      <li><strong>Media Matrix ("Verify Before You Share"):</strong> Curved cyber command wall with multi-screen media monitoring ambiance.</li>
+      <li><strong>Press Investigative ("Check Before You Share"):</strong> High-contrast newspaper print archive collage with investigative glass effects.</li>
+      <li><strong>Midnight Obsidian:</strong> Deep indigo glassmorphism with high-contrast glowing borders.</li>
+    </ul>
+
+    <h2>4.5. Real-Time Forensic Pipeline Logs</h2>
+    <p>
+      Every verification emits structured, sequential step logs displayed live to the user:
+    </p>
+    <ol>
+      <li><code>[Intake Pipeline]</code>: Ingestion of claim via selected multimodal channel.</li>
+      <li><code>[Entity Extraction]</code>: Identification of governmental entities, policy names, and monetary values.</li>
+      <li><code>[Forensic Cross-Reference]</code>: Querying PIB, RBI, MoRTH, and press bureau databases.</li>
+      <li><code>[Sensationalism Indexing]</code>: Analysis of urgency markers, emotional manipulation, and clickbait density.</li>
+      <li><code>[Final Classification]</code>: Verdict allocation with confidence percentage and verifying authority citation.</li>
+    </ol>
+  </div>
+
+  <!-- USER ROLES & ACCESS CONTROL -->
+  <div class="page">
+    <h1>5. Role-Based Access Control & User Roles (RBAC)</h1>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Permissions & Capabilities</th>
+            <th>Access Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Super Admin</strong></td>
+            <td>Full system control: User management, Audit logs, Security credential updates, Ticket resolution.</td>
+            <td>Admin Console (<code>/admin-panel</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>Editor</strong></td>
+            <td>Curate news stream, review student fact-checker claims, publish official debunk advisories.</td>
+            <td>Editor Dashboard</td>
+          </tr>
+          <tr>
+            <td><strong>Analyst</strong></td>
+            <td>Perform deep investigative audits, submit forensic logs, and evaluate sensationalism indices.</td>
+            <td>Analyst Workspace</td>
+          </tr>
+          <tr>
+            <td><strong>Student Fact-Checker</strong></td>
+            <td>Submit verified student claims, flag misinformation, track personal accuracy ratings and earn badges.</td>
+            <td>Student Portal</td>
+          </tr>
+          <tr>
+            <td><strong>Standard User / Citizen</strong></td>
+            <td>Run unlimited DeepCheck AI verifications, browse live verified news, submit query tickets.</td>
+            <td>Public Portal</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h1>6. Authentication & User Experience Architecture</h1>
+    <ul>
+      <li><strong>Unified Auth Interface:</strong> Integrated 3-mode tab switcher (<code>Login</code>, <code>Register</code>, <code>Staff Access</code>) with animated visual state transitions.</li>
+      <li><strong>Client-Side & Server-Side Validation:</strong> Real-time password confirmation, email format checking, and inline error/success glassmorphism banners.</li>
+      <li><strong>Interactive Password Visibility:</strong> Toggleable Eye/EyeOff icons on all password and access-key inputs.</li>
+      <li><strong>Instant Demo Credentials:</strong> 1-Click test fills for Admin (<code>admin</code>), Editor (<code>rohit</code>), and User (<code>ananya</code>).</li>
+    </ul>
+
+    <h1>7. Non-Functional Requirements (NFR)</h1>
+    <ul>
+      <li><strong>Security:</strong> Complete input sanitization, CORS protection, local credential encryption, secure API key isolation in <code>.env</code>.</li>
+      <li><strong>Performance:</strong> First Contentful Paint (FCP) &lt; 0.8s; Production bundle size &lt; 135kB gzip; instant client-side transitions.</li>
+      <li><strong>Reliability:</strong> Offline-capable heuristic fallback when external AI services or cloud networks experience latency.</li>
+      <li><strong>Responsive Design:</strong> 100% mobile, tablet, and desktop adaptive viewport layout with glassmorphic dark-mode palette.</li>
+    </ul>
+
+    <div class="footer-doc">
+      <span>SRA TruthGuard PRD — Document ID: PRD-SRA-2026-v2.1</span>
+      <span>Confidential & Proprietary</span>
+    </div>
+  </div>
+
+</body>
+</html>

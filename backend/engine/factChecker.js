@@ -1,7 +1,15 @@
-﻿/**
+/**
  * SRA Fact-Checking & Stance Detection Engine
- * Evaluates authenticity, sensationalism index, and matches against verified press databases.
+ * Integrates Google AI Studio (Gemini) Intelligence with Verified Ground-Truth Databases.
  */
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
+
+const GEMINI_MODELS = [
+  'gemini-3-flash-preview',
+  'gemini-3.5-flash',
+  'gemini-3.1-flash-lite'
+];
 
 const KNOWN_FACTS_DATABASE = [
   {
@@ -43,18 +51,44 @@ const KNOWN_FACTS_DATABASE = [
 
 class FactCheckerEngine {
   /**
-   * Analyzes an incoming claim
+   * Analyzes an incoming claim using Gemini AI and curated datasets
    * @param {Object} claimData - { text, method, url, source }
    */
   async verifyClaim(claimData) {
     const { text = '', method = 'text', url = '', source = '' } = claimData;
-    const cleanText = text.trim();
+    const cleanText = (text || url || '').trim();
 
-    if (!cleanText && !url) {
+    if (!cleanText) {
       throw new Error('Claim text or media URL is required for verification.');
     }
 
-    // Step 1: Compute Sensationalism & Clickbait Metric
+    // 1. Direct match with verified database for instant determinism
+    for (const entry of KNOWN_FACTS_DATABASE) {
+      if (entry.pattern.test(cleanText)) {
+        return {
+          id: `verif-${Date.now()}`,
+          claim: cleanText,
+          method,
+          verdict: entry.verdict,
+          confidence: entry.confidence,
+          source: entry.source,
+          explanation: entry.explanation,
+          sensationalismIndex: entry.verdict === 'False' ? 85 : 10,
+          aiModel: 'SRA Ground-Truth Registry + Rule Engine',
+          verifiedAt: new Date().toISOString()
+        };
+      }
+    }
+
+    // 2. Query Google AI Studio (Gemini) Intelligence
+    if (GEMINI_API_KEY) {
+      const geminiResult = await this.queryGeminiAI(cleanText, method, source);
+      if (geminiResult) {
+        return geminiResult;
+      }
+    }
+
+    // 3. Fallback Heuristics
     const sensationalKeywords = ['shocking', 'unbelievable', 'viral', 'secret', 'exposed', 'must watch', 'leak', 'free', 'hurry'];
     const lower = cleanText.toLowerCase();
     let sensationalHits = 0;
@@ -63,24 +97,6 @@ class FactCheckerEngine {
     });
     const sensationalismIndex = Math.min(100, Math.round((sensationalHits / 3) * 100));
 
-    // Step 2: Match against Verified Knowledge Base
-    for (const entry of KNOWN_FACTS_DATABASE) {
-      if (entry.pattern.test(cleanText)) {
-        return {
-          id: `verif-${Date.now()}`,
-          claim: cleanText || url,
-          method,
-          verdict: entry.verdict,
-          confidence: entry.confidence,
-          source: entry.source,
-          explanation: entry.explanation,
-          sensationalismIndex,
-          verifiedAt: new Date().toISOString()
-        };
-      }
-    }
-
-    // Step 3: Heuristic NLP Assessment for Unmatched Claims
     let verdict = 'True';
     let confidence = 85;
     let explanation = 'Cross-referenced with standard news wire feeds; no contradictory advisories detected.';
@@ -97,16 +113,71 @@ class FactCheckerEngine {
 
     return {
       id: `verif-${Date.now()}`,
-      claim: cleanText || url,
+      claim: cleanText,
       method,
       verdict,
       confidence,
       source: source || 'SRA AI Verification Engine',
       explanation,
       sensationalismIndex,
+      aiModel: 'SRA Heuristic NLP Engine',
       verifiedAt: new Date().toISOString()
     };
+  }
+
+  /**
+   * Helper to query Google Gemini models
+   */
+  async queryGeminiAI(claimText, method, source) {
+    const systemInstruction = `You are SRA TruthGuard AI, an investigative intelligence system designed to combat disinformation, deepfakes, and manipulated media claims.
+Analyze the claim thoroughly against official government circulars, Press Information Bureau (PIB), RBI, international press agencies (Reuters, BBC, AP), and scientific standards.
+Respond with ONLY a JSON object containing:
+- verdict: 'True' | 'False' | 'Misleading' | 'Unverified'
+- confidence: number between 0 and 100
+- source: primary official agency or news authority
+- explanation: 2-3 precise sentences explaining why the claim is true/false/misleading
+- sensationalismIndex: number between 0 and 100`;
+
+    const userPrompt = `Method: ${method.toUpperCase()}\nClaim: "${claimText}"\nContext: Source=${source || 'Public Feed'}`;
+
+    for (const model of GEMINI_MODELS) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `${systemInstruction}\n\n${userPrompt}` }] }],
+            generationConfig: { responseMimeType: 'application/json', temperature: 0.2 }
+          })
+        });
+
+        if (!response.ok) continue;
+
+        const data = await response.json();
+        const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (rawJson) {
+          const parsed = JSON.parse(rawJson);
+          return {
+            id: `verif-gemini-${Date.now()}`,
+            claim: claimText,
+            method,
+            verdict: parsed.verdict || 'Unverified',
+            confidence: Number(parsed.confidence) || 88,
+            source: parsed.source || 'PIB & Press Wire Cross-Reference',
+            explanation: parsed.explanation || 'Verified with Google AI Studio Gemini engine.',
+            sensationalismIndex: Number(parsed.sensationalismIndex) || 15,
+            aiModel: `Google AI Studio (${model})`,
+            verifiedAt: new Date().toISOString()
+          };
+        }
+      } catch (err) {
+        // Try next candidate model
+      }
+    }
+    return null;
   }
 }
 
 module.exports = new FactCheckerEngine();
+
