@@ -1,8 +1,13 @@
 {
-    "name":  "project",
-    "private":  true,
-    "version":  "0.0.0",
-    "type":  "module",
+    "name": "sra-news-verifier",
+    "version": "1.0.0",
+    "description": "SRA TruthGuard — AI-Powered Multimodal News & Claim Verification Platform",
+    "homepage": "https://chimerical-boba-ea62fe.netlify.app/",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zainul7abideen-sudo/News_Verifier.git"
+    },
+    "type": "module",
     "scripts":  {
                     "dev":  "vite",
                     "build":  "vite build",

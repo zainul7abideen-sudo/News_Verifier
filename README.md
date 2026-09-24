@@ -1,12 +1,26 @@
-# 📰 SRA Fact Checker — AI-Powered Multimodal News & Claim Verification Platform
+# 📰 SRA TruthGuard — AI-Powered Multimodal News & Claim Verification Platform
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://chimerical-boba-ea62fe.netlify.app/)
 [![React](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-7.3-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Deploy to Netlify](https://img.shields.io/badge/Deploy-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://app.netlify.com)
-[![Supabase](https://img.shields.io/badge/Supabase-Backend%20Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Google Gemini AI](https://img.shields.io/badge/Google%20Gemini-AI%20Studio-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-**SRA Fact Checker** is an intelligent, multimodal news verification and claim auditing platform designed to combat misinformation, deepfakes, and viral false claims across digital and print media channels (Television, Social Media, Newspapers, and Radio).
+> **Live Production Deployment:** [https://chimerical-boba-ea62fe.netlify.app/](https://chimerical-boba-ea62fe.netlify.app/)  
+> **Source Repository:** [https://github.com/zainul7abideen-sudo/News_Verifier](https://github.com/zainul7abideen-sudo/News_Verifier)
+
+---
+
+**SRA TruthGuard** is an institutional, multimodal news verification and claim auditing platform designed to combat misinformation, deepfakes, and viral false claims across digital, broadcast, and print media channels (Television, Social Media, Newspapers, and Radio).
+
+---
+
+## 🌐 Live Deployment & Documentation
+
+- **🚀 Live Web App:** [https://chimerical-boba-ea62fe.netlify.app/](https://chimerical-boba-ea62fe.netlify.app/)
+- **📑 Product Requirement Document (PRD):** [`SRA_TruthGuard_PRD.pdf`](SRA_TruthGuard_PRD.pdf) | [`docs/prd.html`](docs/prd.html)
+- **🏗️ System Architecture Specification:** [`SRA_TruthGuard_System_Architecture.pdf`](SRA_TruthGuard_System_Architecture.pdf) | [`docs/architecture.html`](docs/architecture.html)
 
 ---
 
@@ -14,38 +28,42 @@
 
 ```mermaid
 graph TD
-    User[User / Public Ingestion] -->|Video / Image / Text Claim| Intake[Multimodal Ingestion Engine]
-    Intake --> Search[Cross-Channel Media Crawler & PIB Fact DB]
-    Search --> AI[AI Verification & Stance Detection Engine]
-    AI --> Verdict{Verdict Classification}
-    Verdict -->|Authentic| TrueBadge[🟢 TRUE - Verified Source]
-    Verdict -->|Manipulated| FalseBadge[🔴 FALSE - Debunked Claim]
-    Verdict -->|Out of Context| MisleadingBadge[🟡 MISLEADING - Context Warning]
-    Verdict --> Dashboard[Real-Time Public Feed & Admin Telemetry]
-    Verdict --> Supabase[(Supabase Claim Archive)]
+    User[Public Ingestion / Viral News Claim] -->|Text / Video / Document / URL| Ingestion[Multimodal Ingestion Pipeline]
+    Ingestion --> Crawler[Cross-Channel Media Stream & PIB Fact Archive]
+    Crawler --> GeminiAI[Google AI Studio Gemini NLP & DeepFake Classifier]
+    GeminiAI --> Engine[SRA Veracity Scoring & Stance Matrix]
+    Engine --> Verdict{Verdict Classification}
+    Verdict -->|Authentic| TrueBadge[🟢 VERIFIED TRUE - Backed by Official Record]
+    Verdict -->|Fabricated| FalseBadge[🔴 FALSE / FABRICATED - Debunked Claim]
+    Verdict -->|Distorted| MisleadingBadge[🟡 MISLEADING CONTEXT - Misleading Spin]
+    Verdict --> HUD[Cyber Glass Dashboard & Real-Time Alerts]
+    Verdict --> Certs[SHA-256 Cryptographic Audit Trail]
 ```
 
 ---
 
 ## 🌟 Key Features
 
-1. **🔍 Multimodal Verification Pipelines:**
-   - **Video Fact-Checking**: Timestamped context analysis and deepfake detection.
-   - **Image OCR & Reverse Lookup**: Forensic cross-referencing against trusted media archives.
-   - **Text Claim Normalization**: Entity extraction and cross-verification with official press bureaus (PIB Fact Check, NDTV, The Hindu).
+1. **🤖 Google AI Studio (Gemini Intelligence Engine):**
+   - Multimodal fact-checking powered by `gemini-3-flash-preview` and `gemini-3.5-flash`.
+   - Automated veracity confidence scoring (0–100%) and sensationalism index detection.
+   - Ground-truth validation against official Press Information Bureau (PIB) archives and Government of India gazette records.
 
-2. **📊 Dynamic Verdict Classification:**
-   - Automated labeling with confidence scores: `True`, `False`, `Misleading`.
-   - Category filtering: *National, Technology, Politics, Trending, International*.
+2. **🛸 Flagship SRA Cyber Glassmorphic UI:**
+   - Obsidian dark theme with neon cyan (`#38bdf8`) and emerald (`#22c55e`) glowing accents.
+   - Interactive 7-Day Verification Wave Trend SVG Chart with live data points.
+   - Real-time monitored media directory (NDTV, BBC World, CNN, The Hindu, Al Jazeera, Zee News).
 
-3. **👥 Dual-Tier Access (Public & Admin Portal):**
-   - **Public Dashboard**: Search trending verified news, submit new verification requests, and track open fact-check tickets.
-   - **Admin Command Center**: Real-time moderation, AI verification telemetry logs, ticket resolution, and user management.
+3. **🌀 Prominent Quantum Holographic Loaders:**
+   - Triple orbital cyber spinner with counter-rotating rings and pulsing CPU core.
+   - Dedicated active forensic HUD telemetry banners during claim processing.
 
-4. **⚡ Modern High-Performance Tech Stack:**
-   - Ultra-fast client-side routing and rendering with **React 19** and **Vite**.
-   - Modular icons with **Lucide React** and responsive slate/dark cyberpunk interface.
-   - Cloud persistence with **Supabase Database & Authentication**.
+4. **📰 Smooth Breaking News Ticker:**
+   - Real-time `TRUTH ALERTS` banner with smooth overflow clipping underneath a solid red badge.
+
+5. **🛡️ Dual-Tier Access (Public & Staff Admin Command Center):**
+   - **Public Portal:** Instant multi-tab verifier, category filtering, search, and certificate hashing.
+   - **Admin Portal:** Live system telemetry, user role management, tickets, and security credentials.
 
 ---
 
@@ -58,70 +76,70 @@ graph TD
 ### 2. Installation
 ```bash
 # Clone the repository
-git clone https://github.com/Zainul9142/SRA-News-Verification-Platform.git
-cd SRA-News-Verification-Platform
+git clone https://github.com/zainul7abideen-sudo/News_Verifier.git
+cd News_Verifier
 
 # Install dependencies
 npm install
 ```
 
-### 3. Environment Variables (Optional)
-Create a `.env` file in the root directory:
+### 3. Environment Variables
+Create a `.env` file in the project root:
 ```env
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_GEMINI_API_KEY=your_google_ai_studio_api_key
+GEMINI_API_KEY=your_google_ai_studio_api_key
+PORT=5000
 ```
 
-### 4. Start Development Server
+### 4. Running Locally
 ```bash
+# Start frontend client (Vite)
 npm run dev
-```
-Open your browser at `http://localhost:5173`.
 
-### 5. Build for Production
-```bash
-npm run build
+# Start AI backend server (optional)
+npm run server
+
+# Run backend API test suite
+npm run test:backend
 ```
+Open your browser at `http://localhost:5174` (or `http://localhost:5173`).
 
 ---
 
-## 🌐 Deploy to Netlify
+## 🌐 Netlify Deployment
 
-TruthGuard is fully configured with `netlify.toml` for seamless 1-click Netlify deployments:
-
-1. Push your repository to GitHub.
-2. Log in to [Netlify](https://app.netlify.com) and click **"Add new site" > "Import an existing project"**.
-3. Select `SRA-News-Verification-Platform`.
-4. Netlify will automatically detect:
-   - **Build command:** `npm run build`
-   - **Publish directory:** `dist`
-5. *(Optional)* Add your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in **Site Configuration > Environment Variables** (defaults are built-in for instant preview).
-6. Click **"Deploy Site"** — your live fact-checking platform is deployed!
+TruthGuard is pre-configured with `netlify.toml` for zero-configuration Netlify builds:
+- **Build command:** `npm run build`
+- **Publish directory:** `dist`
+- **Live Netlify URL:** [https://chimerical-boba-ea62fe.netlify.app/](https://chimerical-boba-ea62fe.netlify.app/)
 
 ---
 
 ## 📁 Repository Structure
 
 ```text
+├── backend/              # Express API, Fact-Checking Engine, Ground-Truth DB & Tests
+│   ├── engine/           # Gemini NLP classifier & veracity scorer
+│   ├── database/         # Local persistent JSON data store
+│   ├── server.js         # REST API server (Port 5000)
+│   └── tests/            # Automated test suite
 ├── src/
-│   ├── assets/           # Media assets and icons
-│   ├── App.css           # Custom UI styles and transitions
-│   ├── App.jsx           # Main application engine & state router
-│   ├── index.css         # Global Tailwind / design tokens
-│   ├── main.jsx          # React DOM entrypoint
-│   └── supabase.js       # Supabase client integration
-├── public/               # Static assets
-├── index.html            # HTML5 shell
-├── netlify.toml          # Netlify automated deployment configuration
-├── package.json          # Dependencies and scripts
-├── vite.config.js        # Vite bundler configuration
+│   ├── App.jsx           # Master Cyber Glass application
+│   ├── index.css         # High-tech design system, animations & loaders
+│   ├── api.js            # API communication layer
+│   └── gemini.js         # Direct Google AI Studio client
+├── docs/                 # HTML PRD and Architecture documents
+├── SRA_TruthGuard_PRD.pdf # Generated PDF Product Requirements
+├── SRA_TruthGuard_System_Architecture.pdf # Generated PDF Architecture Spec
+├── netlify.toml          # Netlify production routing & headers
+├── package.json          # Dependencies & scripts
 └── README.md             # Project documentation
 ```
 
 ---
 
-## 👨‍💻 Author
-- **Zainul Abideen** - [GitHub Profile](https://github.com/Zainul9142)
-
 ## 📄 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
