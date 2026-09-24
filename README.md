@@ -21,6 +21,7 @@
 - **🚀 Live Web App:** [https://chimerical-boba-ea62fe.netlify.app/](https://chimerical-boba-ea62fe.netlify.app/)
 - **📑 Product Requirement Document (PRD):** [`SRA_TruthGuard_PRD.pdf`](SRA_TruthGuard_PRD.pdf) | [`docs/prd.html`](docs/prd.html)
 - **🏗️ System Architecture Specification:** [`SRA_TruthGuard_System_Architecture.pdf`](SRA_TruthGuard_System_Architecture.pdf) | [`docs/architecture.html`](docs/architecture.html)
+- **📐 UML Class & Object Diagrams Specification:** [`SRA_TruthGuard_Class_and_Object_Diagrams.pdf`](SRA_TruthGuard_Class_and_Object_Diagrams.pdf) | [`docs/class_and_object_diagrams.html`](docs/class_and_object_diagrams.html)
 
 ---
 
