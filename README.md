@@ -1,14 +1,16 @@
 # 📰 SRA TruthGuard — AI-Powered Multimodal News & Claim Verification Platform
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://chimerical-boba-ea62fe.netlify.app/)
+[![Cloudflare Pages](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://sra-truthguard.pages.dev/)
+[![Netlify Demo](https://img.shields.io/badge/Live%20Demo-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://chimerical-boba-ea62fe.netlify.app/)
 [![React](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-7.3-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Google Gemini AI](https://img.shields.io/badge/Google%20Gemini-AI%20Studio-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-> **Live Production Deployment:** [https://chimerical-boba-ea62fe.netlify.app/](https://chimerical-boba-ea62fe.netlify.app/)  
-> **Source Repository:** [https://github.com/zainul7abideen-sudo/News_Verifier](https://github.com/zainul7abideen-sudo/News_Verifier)
+> **⚡ Cloudflare Pages (Primary):** [https://sra-truthguard.pages.dev/](https://sra-truthguard.pages.dev/)  
+> **🌐 Netlify Deployment:** [https://chimerical-boba-ea62fe.netlify.app/](https://chimerical-boba-ea62fe.netlify.app/)  
+> **📁 Source Repository:** [https://github.com/zainul7abideen-sudo/News_Verifier](https://github.com/zainul7abideen-sudo/News_Verifier)
 
 ---
 
@@ -16,9 +18,10 @@
 
 ---
 
-## 🌐 Live Deployment & Documentation
+## 🌐 Live Deployments & Documentation
 
-- **🚀 Live Web App:** [https://chimerical-boba-ea62fe.netlify.app/](https://chimerical-boba-ea62fe.netlify.app/)
+- **⚡ Cloudflare Pages Live App:** [https://sra-truthguard.pages.dev/](https://sra-truthguard.pages.dev/)
+- **🌐 Netlify Live App:** [https://chimerical-boba-ea62fe.netlify.app/](https://chimerical-boba-ea62fe.netlify.app/)
 - **📑 Product Requirement Document (PRD):** [`SRA_TruthGuard_PRD.pdf`](SRA_TruthGuard_PRD.pdf) | [`docs/prd.html`](docs/prd.html)
 - **🏗️ System Architecture Specification:** [`SRA_TruthGuard_System_Architecture.pdf`](SRA_TruthGuard_System_Architecture.pdf) | [`docs/architecture.html`](docs/architecture.html)
 - **📐 UML Class & Object Diagrams Specification:** [`SRA_TruthGuard_Class_and_Object_Diagrams.pdf`](SRA_TruthGuard_Class_and_Object_Diagrams.pdf) | [`docs/class_and_object_diagrams.html`](docs/class_and_object_diagrams.html)

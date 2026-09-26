@@ -1939,7 +1939,8 @@ const App = () => {
           <div className="footer-links">
             <span className="footer-link" onClick={() => setView('admin')}>Staff Login</span>
             <span className="footer-link" onClick={() => setShowLegalModal(true)}>Legal Disclaimer</span>
-            <a href="https://chimerical-boba-ea62fe.netlify.app/" target="_blank" rel="noopener noreferrer" className="footer-link">Live Netlify App</a>
+            <a href="https://sra-truthguard.pages.dev/" target="_blank" rel="noopener noreferrer" className="footer-link">⚡ Cloudflare App</a>
+            <a href="https://chimerical-boba-ea62fe.netlify.app/" target="_blank" rel="noopener noreferrer" className="footer-link">🌐 Netlify App</a>
             <a href="mailto:zainul7abideen@gmail.com" className="footer-link">Support</a>
           </div>
         </div>
