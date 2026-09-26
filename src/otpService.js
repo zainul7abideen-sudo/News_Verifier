@@ -102,10 +102,10 @@ export const otpService = {
       timestamp: new Date().toISOString()
     };
 
-    // EmailJS Browser SDK Dispatch (if configured)
-    const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const emailJsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const emailJsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    // EmailJS Browser SDK Dispatch (Live Direct Inbox Delivery)
+    const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_g805exc';
+    const emailJsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_ebe35xs';
+    const emailJsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'IpvuIpdPsVjRYtrFx';
 
     let emailJsSent = false;
     if (emailJsServiceId && emailJsTemplateId && emailJsPublicKey) {
@@ -116,10 +116,16 @@ export const otpService = {
           emailJsTemplateId,
           {
             to_email: cleanEmail,
+            email: cleanEmail,
+            user_email: cleanEmail,
+            recipient: cleanEmail,
             to_name: metadata.userName || cleanEmail.split('@')[0],
+            name: metadata.userName || cleanEmail.split('@')[0],
             otp: newOtp,
+            code: newOtp,
             passcode: newOtp,
             otp_code: newOtp,
+            verification_code: newOtp,
             purpose: purpose.replace('_', ' ').toUpperCase(),
             from_name: SENDER_NAME,
             sender_email: SENDER_EMAIL,
@@ -128,7 +134,7 @@ export const otpService = {
           emailJsPublicKey
         );
         emailJsSent = true;
-        console.log(`[EmailJS] OTP email successfully dispatched to ${cleanEmail}`);
+        console.log(`[EmailJS] OTP email successfully dispatched to ${cleanEmail} via template ${emailJsTemplateId}`);
       } catch (e) {
         console.warn('[EmailJS] Could not send via EmailJS:', e);
       }
