@@ -16,6 +16,8 @@ const GMAIL_APP_PASS = process.env.GMAIL_APP_PASSWORD || process.env.EMAIL_PASS 
 
 const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID || 'service_tcbxzjq';
 const EMAILJS_TEMPLATE_ID = process.env.EMAILJS_TEMPLATE_ID || 'template_ebe35xs';
+const EMAILJS_REG_TEMPLATE_ID = process.env.EMAILJS_REG_TEMPLATE_ID || 'template_wd31c8a';
+const EMAILJS_FORGOT_TEMPLATE_ID = process.env.EMAILJS_FORGOT_TEMPLATE_ID || 'template_ebe35xs';
 const EMAILJS_PUBLIC_KEY = process.env.EMAILJS_PUBLIC_KEY || process.env.VITE_EMAILJS_PUBLIC_KEY || 'IpvuIpdPsVjRYtrFx';
 const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || 'xcG-bzRyHIGzFPEeXEIEe';
 
@@ -43,13 +45,20 @@ async function sendOtpEmail(to, otp, purpose = 'Verification', userName = '') {
         ...(EMAILJS_PRIVATE_KEY ? { privateKey: EMAILJS_PRIVATE_KEY } : {})
       };
 
+      const templateId = purpose.toLowerCase().includes('reg')
+        ? EMAILJS_REG_TEMPLATE_ID
+        : (purpose.toLowerCase().includes('forgot') ? EMAILJS_FORGOT_TEMPLATE_ID : EMAILJS_TEMPLATE_ID);
+
       const res = await emailjs.send(
         EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
+        templateId,
         {
           to_email: to,
+          email: to,
           to_name: userName || to.split('@')[0],
+          name: userName || to.split('@')[0],
           otp: otp,
+          code: otp,
           passcode: otp,
           otp_code: otp,
           purpose: purpose.replace('_', ' ').toUpperCase(),
@@ -59,7 +68,7 @@ async function sendOtpEmail(to, otp, purpose = 'Verification', userName = '') {
         },
         emailjsOptions
       );
-      console.log(`[EmailJS Node] OTP email dispatched to ${to}: status ${res.status}`);
+      console.log(`[EmailJS Node] OTP email dispatched to ${to} via ${templateId}: status ${res.status}`);
       return { success: true, messageId: `emailjs_${Date.now()}` };
     } catch (err) {
       console.warn('[EmailJS Node] Failed to send via EmailJS Node:', err.message || err);

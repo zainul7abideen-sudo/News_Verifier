@@ -104,37 +104,49 @@ export const otpService = {
 
     // EmailJS Browser SDK Dispatch (Live Direct Inbox Delivery)
     const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_tcbxzjq';
-    const emailJsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_ebe35xs';
+    const regTemplateId = import.meta.env.VITE_EMAILJS_REG_TEMPLATE_ID || 'template_wd31c8a';
+    const forgotTemplateId = import.meta.env.VITE_EMAILJS_FORGOT_TEMPLATE_ID || 'template_ebe35xs';
+    const defaultTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_ebe35xs';
+    
+    // Choose primary and fallback templates based on purpose
+    const primaryTemplateId = purpose === 'registration' ? regTemplateId : (purpose === 'forgot_password' ? forgotTemplateId : defaultTemplateId);
+    const fallbackTemplateId = primaryTemplateId === regTemplateId ? forgotTemplateId : regTemplateId;
     const emailJsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'IpvuIpdPsVjRYtrFx';
 
     let emailJsSent = false;
-    if (emailJsServiceId && emailJsTemplateId && emailJsPublicKey) {
+    if (emailJsServiceId && primaryTemplateId && emailJsPublicKey) {
+      const templateParams = {
+        to_email: cleanEmail,
+        email: cleanEmail,
+        user_email: cleanEmail,
+        recipient: cleanEmail,
+        to_name: metadata.userName || cleanEmail.split('@')[0],
+        name: metadata.userName || cleanEmail.split('@')[0],
+        otp: newOtp,
+        code: newOtp,
+        passcode: newOtp,
+        otp_code: newOtp,
+        verification_code: newOtp,
+        purpose: purpose.replace('_', ' ').toUpperCase(),
+        from_name: SENDER_NAME,
+        sender_email: SENDER_EMAIL,
+        message: `Your SRA TruthGuard security verification OTP is: ${newOtp} (valid for 10 minutes).`
+      };
+
       try {
         const emailjs = await import('@emailjs/browser');
-        await emailjs.default.send(
-          emailJsServiceId,
-          emailJsTemplateId,
-          {
-            to_email: cleanEmail,
-            email: cleanEmail,
-            user_email: cleanEmail,
-            recipient: cleanEmail,
-            to_name: metadata.userName || cleanEmail.split('@')[0],
-            name: metadata.userName || cleanEmail.split('@')[0],
-            otp: newOtp,
-            code: newOtp,
-            passcode: newOtp,
-            otp_code: newOtp,
-            verification_code: newOtp,
-            purpose: purpose.replace('_', ' ').toUpperCase(),
-            from_name: SENDER_NAME,
-            sender_email: SENDER_EMAIL,
-            message: `Your SRA TruthGuard security verification OTP is: ${newOtp} (valid for 10 minutes).`
-          },
-          emailJsPublicKey
-        );
-        emailJsSent = true;
-        console.log(`[EmailJS] OTP email successfully dispatched to ${cleanEmail} via template ${emailJsTemplateId}`);
+        try {
+          await emailjs.default.send(emailJsServiceId, primaryTemplateId, templateParams, emailJsPublicKey);
+          emailJsSent = true;
+          console.log(`[EmailJS] OTP dispatched to ${cleanEmail} via primary template ${primaryTemplateId}`);
+        } catch (errPrimary) {
+          console.warn(`[EmailJS] Primary template ${primaryTemplateId} failed, trying fallback ${fallbackTemplateId}...`, errPrimary);
+          if (fallbackTemplateId && fallbackTemplateId !== primaryTemplateId) {
+            await emailjs.default.send(emailJsServiceId, fallbackTemplateId, templateParams, emailJsPublicKey);
+            emailJsSent = true;
+            console.log(`[EmailJS] OTP dispatched to ${cleanEmail} via fallback template ${fallbackTemplateId}`);
+          }
+        }
       } catch (e) {
         console.warn('[EmailJS] Could not send via EmailJS:', e);
       }
