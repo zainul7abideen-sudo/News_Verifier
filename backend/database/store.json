@@ -59,6 +59,14 @@
   ],
   "tickets": [
     {
+      "id": "tkt-3425",
+      "status": "Pending",
+      "createdAt": "2026-09-24T20:42:43.425Z",
+      "claimText": "Test ticket for unverified social post",
+      "method": "video",
+      "submittedBy": "test_student"
+    },
+    {
       "id": "tkt-5029",
       "status": "Pending",
       "createdAt": "2026-09-24T20:17:35.029Z",
@@ -125,6 +133,30 @@
     }
   ],
   "verifications": [
+    {
+      "id": "verif-1790282563416",
+      "claim": "Ministry announced budget for highway expansion infrastructure",
+      "method": "text",
+      "verdict": "True",
+      "confidence": 94,
+      "source": "Ministry of Road Transport and Highways",
+      "explanation": "Matches confirmed budgetary allocations under the National Infrastructure Pipeline (NIP).",
+      "sensationalismIndex": 10,
+      "aiModel": "SRA Ground-Truth Registry + Rule Engine",
+      "verifiedAt": "2026-09-24T20:42:43.416Z"
+    },
+    {
+      "id": "verif-1790282563409",
+      "claim": "Viral claim that RBI is issuing new 5000 rupee notes next month",
+      "method": "text",
+      "verdict": "False",
+      "confidence": 99,
+      "source": "RBI / PIB Fact Check",
+      "explanation": "RBI has officially clarified that no ₹5000 denomination currency notes have been printed or authorized.",
+      "sensationalismIndex": 85,
+      "aiModel": "SRA Ground-Truth Registry + Rule Engine",
+      "verifiedAt": "2026-09-24T20:42:43.409Z"
+    },
     {
       "id": "verif-1790281055007",
       "claim": "Ministry announced budget for highway expansion infrastructure",
@@ -300,9 +332,9 @@
     }
   ],
   "analytics": {
-    "totalClaimsVerified": 1434,
-    "trueClaims": 859,
-    "falseClaims": 425,
+    "totalClaimsVerified": 1436,
+    "trueClaims": 860,
+    "falseClaims": 426,
     "misleadingClaims": 150,
     "accuracyRate": 98.4
   }
