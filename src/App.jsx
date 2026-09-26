@@ -379,9 +379,8 @@ const App = () => {
 
     setIsAuthLoading(true);
     try {
-      const res = await api.requestRegistrationOtp(regEmail, regFullName);
-      setRegOtpPreview(res.otpPreview);
-      setRegOtp(res.otpPreview); // Auto-filled for instant testing convenience
+      await api.requestRegistrationOtp(regEmail, regFullName);
+      setRegOtp(''); // Requires user to manually enter the OTP received in their email
       setRegCooldown(30);
       setRegStep(2);
       setAuthSuccess(`📧 Verification code dispatched from ${api.SENDER_EMAIL} to ${regEmail}`);
@@ -474,9 +473,8 @@ const App = () => {
     setIsAuthLoading(true);
 
     try {
-      const res = await api.requestForgotPasswordOtp(forgotEmail);
-      setOtpPreview(res.otpPreview);
-      setForgotOtp(res.otpPreview); // Auto-populated for convenience
+      await api.requestForgotPasswordOtp(forgotEmail);
+      setForgotOtp(''); // Requires user to manually enter the OTP received in their email
       setForgotCooldown(30);
       setForgotStep(2);
       setAuthSuccess(`📧 Security reset code dispatched from ${api.SENDER_EMAIL} to ${forgotEmail}`);
@@ -719,24 +717,14 @@ const App = () => {
                 </form>
               ) : (
                 <form onSubmit={handleResetPasswordSubmit}>
-                  {otpPreview && (
-                    <div style={{ padding: '0.75rem', borderRadius: 8, background: 'rgba(56,189,248,0.12)', border: '1px solid var(--accent-primary)', marginBottom: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.82rem', color: '#e0f2fe' }}>
-                        🔑 Dynamic OTP for <strong>{forgotEmail}</strong>: <strong style={{ color: '#38bdf8', letterSpacing: 2, fontSize: '1rem' }}>{otpPreview}</strong>
-                      </span>
-                      <button
-                        type="button"
-                        style={{ fontSize: '0.75rem', background: 'var(--accent-primary)', padding: '0.25rem 0.6rem', borderRadius: 4, color: '#ffffff', fontWeight: 600 }}
-                        onClick={() => {
-                          setForgotOtp(otpPreview);
-                          setCopiedOtp(true);
-                          setTimeout(() => setCopiedOtp(false), 2000);
-                        }}
-                      >
-                        {copiedOtp ? '✓ Filled' : 'Auto-Fill'}
-                      </button>
+                  <div style={{ padding: '0.85rem', borderRadius: 8, background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.25)', marginBottom: '1rem' }}>
+                    <div style={{ fontSize: '0.82rem', color: '#e0f2fe', fontWeight: 600 }}>
+                      📧 Security OTP Sent to {forgotEmail}
                     </div>
-                  )}
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                      Please check your inbox, retrieve the 6-digit code sent from <strong>{api.SENDER_EMAIL}</strong>, and enter it below.
+                    </div>
+                  </div>
 
                   <div className="input-group">
                     <KeyRound size={18} className="input-icon" />
@@ -923,28 +911,13 @@ const App = () => {
                 </form>
               ) : (
                 <form onSubmit={handleVerifyAndRegister}>
-                  <div style={{ padding: '0.85rem', borderRadius: 8, background: 'rgba(56,189,248,0.12)', border: '1px solid var(--accent-primary)', marginBottom: '1rem' }}>
-                    <div style={{ fontSize: '0.8rem', color: '#e0f2fe', marginBottom: 4 }}>
-                      📧 Verification OTP sent from <strong>{api.SENDER_EMAIL}</strong> to <strong>{regEmail}</strong>
+                  <div style={{ padding: '0.85rem', borderRadius: 8, background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.25)', marginBottom: '1rem' }}>
+                    <div style={{ fontSize: '0.82rem', color: '#e0f2fe', fontWeight: 600 }}>
+                      📧 Verification OTP Sent to {regEmail}
                     </div>
-                    {regOtpPreview && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-                        <span style={{ fontSize: '0.84rem', color: '#93c5fd' }}>
-                          🔑 Code: <strong style={{ color: '#ffffff', letterSpacing: 2, fontSize: '1rem' }}>{regOtpPreview}</strong>
-                        </span>
-                        <button
-                          type="button"
-                          style={{ fontSize: '0.75rem', background: 'var(--accent-primary)', padding: '0.25rem 0.6rem', borderRadius: 4, color: '#ffffff', fontWeight: 600 }}
-                          onClick={() => {
-                            setRegOtp(regOtpPreview);
-                            setCopiedOtp(true);
-                            setTimeout(() => setCopiedOtp(false), 2000);
-                          }}
-                        >
-                          {copiedOtp ? '✓ Filled' : 'Auto-Fill'}
-                        </button>
-                      </div>
-                    )}
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                      Please check your inbox for the 6-digit verification code sent from <strong>{api.SENDER_EMAIL}</strong> and enter it below manually.
+                    </div>
                   </div>
 
                   <div className="input-group">
