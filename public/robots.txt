@@ -1,0 +1,5 @@
+# robots.txt for SRA TruthGuard
+User-agent: *
+Allow: /
+
+Sitemap: https://sra-truthguard.pages.dev/sitemap.xml
