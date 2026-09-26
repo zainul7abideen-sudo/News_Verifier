@@ -65,7 +65,13 @@ graph TD
 4. **📰 Smooth Breaking News Ticker:**
    - Real-time `TRUTH ALERTS` banner with smooth overflow clipping underneath a solid red badge.
 
-5. **🛡️ Dual-Tier Access (Public & Staff Admin Command Center):**
+5. **📧 Dynamic OTP Email Verification Engine (Official Sender: `zainulcorp71@gmail.com`):**
+   - Cryptographically random 6-digit dynamic OTP generated per request for user registration and password recovery.
+   - 10-minute expiry with 30-second rate-limiting cooldown.
+   - Zero-cost live email inbox delivery via EmailJS & Gmail SMTP integration.
+   - Secure manual code entry verification flow (no auto-fill leakage).
+
+6. **🛡️ Dual-Tier Access (Public & Staff Admin Command Center):**
    - **Public Portal:** Instant multi-tab verifier, category filtering, search, and certificate hashing.
    - **Admin Portal:** Live system telemetry, user role management, tickets, and security credentials.
 
@@ -90,11 +96,21 @@ npm install
 ### 3. Environment Variables
 Create a `.env` file in the project root:
 ```env
+# Database & Gemini AI Configuration
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_GEMINI_API_KEY=your_google_ai_studio_api_key
 GEMINI_API_KEY=your_google_ai_studio_api_key
 PORT=5000
+
+# EmailJS Dynamic OTP Email Configuration
+VITE_EMAILJS_SERVICE_ID=service_tcbxzjq
+VITE_EMAILJS_TEMPLATE_ID=template_ebe35xs
+VITE_EMAILJS_PUBLIC_KEY=IpvuIpdPsVjRYtrFx
+EMAILJS_SERVICE_ID=service_tcbxzjq
+EMAILJS_TEMPLATE_ID=template_ebe35xs
+EMAILJS_PUBLIC_KEY=IpvuIpdPsVjRYtrFx
+EMAILJS_PRIVATE_KEY=xcG-bzRyHIGzFPEeXEIEe
 ```
 
 ### 4. Running Locally
@@ -127,16 +143,20 @@ TruthGuard is pre-configured with `netlify.toml` for zero-configuration Netlify 
 ├── backend/              # Express API, Fact-Checking Engine, Ground-Truth DB & Tests
 │   ├── engine/           # Gemini NLP classifier & veracity scorer
 │   ├── database/         # Local persistent JSON data store
+│   ├── routes/           # Auth & claim verification API endpoints
+│   ├── services/mailer.js # Dynamic OTP Nodemailer & EmailJS Node dispatcher
 │   ├── server.js         # REST API server (Port 5000)
 │   └── tests/            # Automated test suite
 ├── src/
 │   ├── App.jsx           # Master Cyber Glass application
 │   ├── index.css         # High-tech design system, animations & loaders
 │   ├── api.js            # API communication layer
+│   ├── otpService.js     # Real-time dynamic OTP generation & EmailJS browser SDK
 │   └── gemini.js         # Direct Google AI Studio client
 ├── docs/                 # HTML PRD and Architecture documents
 ├── SRA_TruthGuard_PRD.pdf # Generated PDF Product Requirements
 ├── SRA_TruthGuard_System_Architecture.pdf # Generated PDF Architecture Spec
+├── wrangler.jsonc        # Cloudflare Workers & Pages deployment configuration
 ├── netlify.toml          # Netlify production routing & headers
 ├── package.json          # Dependencies & scripts
 └── README.md             # Project documentation
