@@ -14,7 +14,7 @@ try {
 const SENDER_EMAIL = process.env.GMAIL_USER || 'zainulcorp71@gmail.com';
 const GMAIL_APP_PASS = process.env.GMAIL_APP_PASSWORD || process.env.EMAIL_PASS || '';
 
-const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID || 'service_g805exc';
+const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID || 'service_tcbxzjq';
 const EMAILJS_TEMPLATE_ID = process.env.EMAILJS_TEMPLATE_ID || 'template_ebe35xs';
 const EMAILJS_PUBLIC_KEY = process.env.EMAILJS_PUBLIC_KEY || process.env.VITE_EMAILJS_PUBLIC_KEY || 'IpvuIpdPsVjRYtrFx';
 const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || 'xcG-bzRyHIGzFPEeXEIEe';

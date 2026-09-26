@@ -103,7 +103,7 @@ export const otpService = {
     };
 
     // EmailJS Browser SDK Dispatch (Live Direct Inbox Delivery)
-    const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_g805exc';
+    const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_tcbxzjq';
     const emailJsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_ebe35xs';
     const emailJsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'IpvuIpdPsVjRYtrFx';
 
