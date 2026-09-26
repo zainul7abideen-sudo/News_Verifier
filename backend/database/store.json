@@ -324,10 +324,21 @@
   ],
   "users": [
     {
-      "id": "usr-admin",
-      "username": "admin",
-      "email": "admin@sra-factcheck.org",
+      "id": "usr-zainul-admin",
+      "name": "Zainul Abideen",
+      "username": "zainulcorp71",
+      "email": "zainulcorp71@gmail.com",
       "role": "admin",
+      "status": "active",
+      "password": "Zainul.@143"
+    },
+    {
+      "id": "usr-admin",
+      "name": "Md Ekbal",
+      "username": "admin",
+      "email": "imd8351087@gmail.com",
+      "role": "admin",
+      "status": "active",
       "password": "Admin@SecurePass2026"
     }
   ],

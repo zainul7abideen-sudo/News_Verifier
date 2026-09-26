@@ -28,12 +28,16 @@ import {
   Newspaper,
   Cpu,
   RefreshCw,
-  Loader2
+  Loader2,
+  Check,
+  Copy,
+  Send,
+  ArrowRight
 } from 'lucide-react';
 import './App.css';
 import { api } from './api';
 
-const DEFAULT_ADMIN = { userId: 'admin', password: 'Admin@SecurePass2026' };
+const DEFAULT_ADMIN = { userId: 'zainulcorp71@gmail.com', password: 'Zainul.@143' };
 
 const BRAND_INFO = {
   name: 'SRA TruthGuard',
@@ -116,18 +120,27 @@ const App = () => {
   const [showLegalModal, setShowLegalModal] = useState(false);
 
   // Dedicated Auth Form States
-  const [loginIdentifier, setLoginIdentifier] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
+  const [loginIdentifier, setLoginIdentifier] = useState('zainulcorp71@gmail.com');
+  const [loginPassword, setLoginPassword] = useState('Zainul.@143');
 
-  const [regFullName, setRegFullName] = useState('');
-  const [regUsername, setRegUsername] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regMobile, setRegMobile] = useState('');
-  const [regPassword, setRegPassword] = useState('');
-  const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [regFullName, setRegFullName] = useState('Zainul Abideen');
+  const [regUsername, setRegUsername] = useState('zainulcorp71');
+  const [regEmail, setRegEmail] = useState('zainulcorp71@gmail.com');
+  const [regMobile, setRegMobile] = useState('+91 98765 43210');
+  const [regPassword, setRegPassword] = useState('Zainul.@143');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('Zainul.@143');
 
-  const [adminStaffId, setAdminStaffId] = useState('');
-  const [adminStaffPass, setAdminStaffPass] = useState('');
+  const [adminStaffId, setAdminStaffId] = useState('zainulcorp71@gmail.com');
+  const [adminStaffPass, setAdminStaffPass] = useState('Zainul.@143');
+
+  // Forgot Password / Verification States
+  const [forgotEmail, setForgotEmail] = useState('zainulcorp71@gmail.com');
+  const [forgotOtp, setForgotOtp] = useState('');
+  const [forgotNewPassword, setForgotNewPassword] = useState('');
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
+  const [forgotStep, setForgotStep] = useState(1);
+  const [otpPreview, setOtpPreview] = useState('');
+  const [copiedOtp, setCopiedOtp] = useState(false);
 
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
@@ -296,12 +309,27 @@ const App = () => {
     setAuthSuccess('');
     setShowPassword(false);
     setShowConfirmPassword(false);
+    if (newView === 'forgot-password') {
+      setForgotStep(1);
+      setForgotOtp('');
+      setForgotNewPassword('');
+      setForgotConfirmPassword('');
+      setOtpPreview('');
+    }
   };
 
   const fillDemoAccount = (role) => {
     setAuthError('');
     setAuthSuccess('');
-    if (role === 'admin') {
+    if (role === 'zainul-admin') {
+      if (view === 'admin') {
+        setAdminStaffId('zainulcorp71@gmail.com');
+        setAdminStaffPass('Zainul.@143');
+      } else {
+        setLoginIdentifier('zainulcorp71@gmail.com');
+        setLoginPassword('Zainul.@143');
+      }
+    } else if (role === 'admin') {
       if (view === 'admin') {
         setAdminStaffId('admin');
         setAdminStaffPass('Admin@SecurePass2026');
@@ -335,15 +363,9 @@ const App = () => {
     setIsAuthLoading(true);
     try {
       await api.register(regFullName, regUsername, regEmail, regPassword, regMobile);
-      setAuthSuccess('🎉 Registration successful! Redirecting to login...');
+      setAuthSuccess('🎉 Registration verified & created! Redirecting to login...');
       setLoginIdentifier(regEmail || regUsername);
-      setLoginPassword('');
-      setRegFullName('');
-      setRegUsername('');
-      setRegEmail('');
-      setRegMobile('');
-      setRegPassword('');
-      setRegConfirmPassword('');
+      setLoginPassword(regPassword);
       setTimeout(() => {
         setView('login');
       }, 1000);
@@ -390,6 +412,19 @@ const App = () => {
     setAuthSuccess('');
 
     const cleanId = adminStaffId.trim().toLowerCase();
+
+    // Check Zainul Abideen Admin credentials
+    if ((cleanId === 'zainulcorp71@gmail.com' || cleanId === 'zainul' || cleanId === 'zainulcorp71') && adminStaffPass === 'Zainul.@143') {
+      const zainulAdmin = { id: 'usr-zainul', name: 'Zainul Abideen', username: 'zainulcorp71', role: 'admin', email: 'zainulcorp71@gmail.com' };
+      setUser(zainulAdmin);
+      localStorage.setItem('sra_user', JSON.stringify(zainulAdmin));
+      setAuthSuccess('Zainul Abideen verified as Super Admin. Accessing Admin Console...');
+      setTimeout(() => {
+        setView('admin-panel');
+      }, 600);
+      return;
+    }
+
     if ((cleanId === adminSettings.userId.toLowerCase() || cleanId === 'admin' || cleanId === 'imd8351087@gmail.com') && adminStaffPass === adminSettings.password) {
       const adminUser = { id: 'usr-admin-1', name: 'Md Ekbal', username: 'admin', role: 'admin', email: 'imd8351087@gmail.com' };
       setUser(adminUser);
@@ -403,6 +438,51 @@ const App = () => {
     }
   };
 
+  const handleRequestResetOtp = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthSuccess('');
+    setIsAuthLoading(true);
+
+    try {
+      const res = await api.requestPasswordReset(forgotEmail);
+      setOtpPreview(res.otpPreview);
+      setForgotOtp(res.otpPreview); // Auto-populate for user convenience
+      setForgotStep(2);
+      setAuthSuccess(`✅ Security code sent to ${forgotEmail}. Please enter OTP and your new password.`);
+    } catch (err) {
+      setAuthError(err.message || 'Failed to send verification code.');
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
+  const handleResetPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthSuccess('');
+
+    if (forgotNewPassword !== forgotConfirmPassword) {
+      setAuthError('New passwords do not match. Please re-enter.');
+      return;
+    }
+
+    setIsAuthLoading(true);
+    try {
+      const res = await api.resetPassword(forgotEmail, forgotOtp, forgotNewPassword);
+      setAuthSuccess(res.message || 'Password reset successfully!');
+      setLoginIdentifier(forgotEmail);
+      setLoginPassword(forgotNewPassword);
+      setTimeout(() => {
+        setView('login');
+      }, 1200);
+    } catch (err) {
+      setAuthError(err.message || 'Failed to reset password.');
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
   const updateAdminCredentials = (id, pass) => {
     const newSettings = { userId: id, password: pass };
     setAdminSettings(newSettings);
@@ -410,8 +490,8 @@ const App = () => {
     alert("Admin Credentials Updated Successfully!");
   };
 
-  // Unified Authentication View (Login / Register / Staff Access)
-  if (view === 'registration' || view === 'login' || view === 'admin') {
+  // Unified Authentication View (Login / Register / Staff Access / Forgot Password)
+  if (view === 'registration' || view === 'login' || view === 'admin' || view === 'forgot-password') {
     return (
       <div className="nexus-auth-container">
         <div className="nexus-auth-card glass">
@@ -438,6 +518,13 @@ const App = () => {
             </button>
             <button
               type="button"
+              className={`auth-tab ${view === 'forgot-password' ? 'active' : ''}`}
+              onClick={() => switchAuthView('forgot-password')}
+            >
+              <Mail size={14} /> Forgot Pass
+            </button>
+            <button
+              type="button"
               className={`auth-tab ${view === 'admin' ? 'active' : ''}`}
               onClick={() => switchAuthView('admin')}
             >
@@ -448,24 +535,24 @@ const App = () => {
           {/* Quick Demo Accounts Bar */}
           <div className="demo-accounts-bar">
             <div className="demo-header">
-              <Sparkles size={13} /> Quick Fill Demo Credentials:
+              <Sparkles size={13} /> Quick Fill Verified Credentials:
             </div>
             <div className="demo-chips">
               <button
                 type="button"
-                className="demo-chip"
-                onClick={() => fillDemoAccount('admin')}
-                title="Admin (Full Access)"
+                className="demo-chip active-chip"
+                onClick={() => fillDemoAccount('zainul-admin')}
+                title="Primary Administrator (Zainul Abideen)"
               >
-                🛡️ Admin (Md Ekbal)
+                👑 Zainul (Admin)
               </button>
               <button
                 type="button"
                 className="demo-chip"
-                onClick={() => fillDemoAccount('user')}
-                title="Standard User"
+                onClick={() => fillDemoAccount('admin')}
+                title="Staff Admin (Md Ekbal)"
               >
-                👤 User (Ananya)
+                🛡️ Admin (Md Ekbal)
               </button>
               <button
                 type="button"
@@ -474,6 +561,14 @@ const App = () => {
                 title="Editor Role"
               >
                 ✍️ Editor (Rohit)
+              </button>
+              <button
+                type="button"
+                className="demo-chip"
+                onClick={() => fillDemoAccount('user')}
+                title="Standard User"
+              >
+                👤 User (Ananya)
               </button>
             </div>
           </div>
@@ -496,13 +591,13 @@ const App = () => {
           {/* VIEW: LOGIN */}
           {view === 'login' && (
             <>
-              <p className="subtitle">Sign in to submit queries, verify stories, and access records.</p>
+              <p className="subtitle">Sign in to verify real-time news, submit forensic queries, and access truth archives.</p>
               <form onSubmit={handleLoginSubmit}>
                 <div className="input-group">
                   <Mail size={18} className="input-icon" />
                   <input
                     type="text"
-                    placeholder="Email or Username"
+                    placeholder="Email or Username (e.g. zainulcorp71@gmail.com)"
                     required
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
@@ -528,6 +623,15 @@ const App = () => {
                   </button>
                 </div>
 
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-0.3rem', marginBottom: '0.6rem' }}>
+                  <span
+                    style={{ fontSize: '0.8rem', color: 'var(--accent-secondary)', cursor: 'pointer', textDecoration: 'underline' }}
+                    onClick={() => switchAuthView('forgot-password')}
+                  >
+                    Forgot Password?
+                  </span>
+                </div>
+
                 <button type="submit" className="nexus-btn-primary" disabled={isAuthLoading}>
                   {isAuthLoading ? (
                     <>
@@ -546,10 +650,137 @@ const App = () => {
             </>
           )}
 
+          {/* VIEW: FORGOT PASSWORD */}
+          {view === 'forgot-password' && (
+            <>
+              <p className="subtitle">Reset your account credentials via security verification code.</p>
+              
+              {forgotStep === 1 ? (
+                <form onSubmit={handleRequestResetOtp}>
+                  <div className="input-group">
+                    <Mail size={18} className="input-icon" />
+                    <input
+                      type="email"
+                      placeholder="Registered Email (e.g. zainulcorp71@gmail.com)"
+                      required
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                    />
+                  </div>
+
+                  <button type="submit" className="nexus-btn-primary" disabled={isAuthLoading}>
+                    {isAuthLoading ? (
+                      <>
+                        <RefreshCw size={16} className="spin-icon" /> Sending Code...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={16} /> Send 6-Digit Verification Code
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleResetPasswordSubmit}>
+                  {otpPreview && (
+                    <div style={{ padding: '0.75rem', borderRadius: 8, background: 'rgba(56,189,248,0.12)', border: '1px solid var(--accent-primary)', marginBottom: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.82rem', color: '#e0f2fe' }}>
+                        🔑 Verification OTP for <strong>{forgotEmail}</strong>: <strong style={{ color: '#38bdf8', letterSpacing: 1.5, fontSize: '0.95rem' }}>{otpPreview}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        style={{ fontSize: '0.75rem', background: 'var(--accent-primary)', padding: '0.25rem 0.6rem', borderRadius: 4, color: '#ffffff', fontWeight: 600 }}
+                        onClick={() => {
+                          setForgotOtp(otpPreview);
+                          setCopiedOtp(true);
+                          setTimeout(() => setCopiedOtp(false), 2000);
+                        }}
+                      >
+                        {copiedOtp ? '✓ Filled' : 'Auto-Fill'}
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="input-group">
+                    <KeyRound size={18} className="input-icon" />
+                    <input
+                      type="text"
+                      placeholder="Enter 6-Digit OTP Code"
+                      required
+                      maxLength={6}
+                      value={forgotOtp}
+                      onChange={(e) => setForgotOtp(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="input-group">
+                    <Lock size={18} className="input-icon" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="New Password (min. 6 chars)"
+                      required
+                      value={forgotNewPassword}
+                      onChange={(e) => setForgotNewPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="toggle-pw-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+
+                  <div className="input-group">
+                    <Lock size={18} className="input-icon" />
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm New Password"
+                      required
+                      value={forgotConfirmPassword}
+                      onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="toggle-pw-btn"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+
+                  <button type="submit" className="nexus-btn-primary" disabled={isAuthLoading}>
+                    {isAuthLoading ? (
+                      <>
+                        <RefreshCw size={16} className="spin-icon" /> Updating Password...
+                      </>
+                    ) : (
+                      'Reset Password & Sign In'
+                    )}
+                  </button>
+
+                  <div style={{ textAlign: 'center', marginTop: '0.6rem' }}>
+                    <span
+                      style={{ fontSize: '0.8rem', color: 'var(--text-muted)', cursor: 'pointer' }}
+                      onClick={() => setForgotStep(1)}
+                    >
+                      ← Re-enter Email Address
+                    </span>
+                  </div>
+                </form>
+              )}
+
+              <p className="auth-footer">
+                Remember your password?
+                <span onClick={() => switchAuthView('login')}>Back to Login</span>
+              </p>
+            </>
+          )}
+
           {/* VIEW: REGISTRATION */}
           {view === 'registration' && (
             <>
-              <p className="subtitle">Join the SRA TruthGuard media verification community.</p>
+              <p className="subtitle">Join the SRA TruthGuard media verification network.</p>
               <form onSubmit={handleRegisterSubmit}>
                 <div className="form-row">
                   <div className="input-group">
@@ -634,10 +865,10 @@ const App = () => {
                 <button type="submit" className="nexus-btn-primary" disabled={isAuthLoading}>
                   {isAuthLoading ? (
                     <>
-                      <RefreshCw size={16} className="spin-icon" /> Creating Account...
+                      <RefreshCw size={16} className="spin-icon" /> Verifying & Creating Account...
                     </>
                   ) : (
-                    'Complete Registration'
+                    'Verify & Create Account'
                   )}
                 </button>
               </form>
@@ -658,7 +889,7 @@ const App = () => {
                   <User size={18} className="input-icon" />
                   <input
                     type="text"
-                    placeholder="Staff ID (e.g. admin)"
+                    placeholder="Staff ID / Email (e.g. zainulcorp71@gmail.com)"
                     required
                     value={adminStaffId}
                     onChange={(e) => setAdminStaffId(e.target.value)}
@@ -829,12 +1060,13 @@ const App = () => {
             </div>
             <div className="admin-details-grid">
               <section className="admin-profile-section glass">
-                <h2>Admin Profile</h2>
+                <h2>Super Admin Profile</h2>
                 <div className="profile-info-list">
-                  <div className="info-item"><span className="label">Name:</span> <span>Md Ekbal</span></div>
-                  <div className="info-item"><span className="label">Email:</span> <span>imd8351087@gmail.com</span></div>
-                  <div className="info-item"><span className="label">Mobile:</span> <span>8102227936</span></div>
-                  <div className="info-item"><span className="label">Support:</span> <span>zainul7abideen@gmail.com</span></div>
+                  <div className="info-item"><span className="label">Name:</span> <span>Zainul Abideen</span></div>
+                  <div className="info-item"><span className="label">Email:</span> <span>zainulcorp71@gmail.com</span></div>
+                  <div className="info-item"><span className="label">Mobile:</span> <span>+91 98765 43210</span></div>
+                  <div className="info-item"><span className="label">Support:</span> <span>zainulcorp71@gmail.com</span></div>
+                  <div className="info-item"><span className="label">Status:</span> <span className="badge" style={{ background: '#22c55e', color: '#fff' }}>Verified Master Admin</span></div>
                 </div>
               </section>
             </div>
@@ -859,8 +1091,8 @@ const App = () => {
             <li onClick={logout}>Logout</li>
           </ul>
           <div className="admin-footer-details glass" style={{ padding: '1rem', marginTop: 'auto' }}>
-            <p><strong>System Admin</strong></p>
-            <p>Md Ekbal</p>
+            <p><strong>System Super Admin</strong></p>
+            <p>Zainul Abideen</p>
           </div>
         </nav>
         <main className="admin-main">
@@ -868,10 +1100,10 @@ const App = () => {
             <h1>SRA TruthGuard System Management</h1>
             <div className="admin-profile">
               <div className="admin-info-text" style={{ textAlign: 'right' }}>
-                <span className="admin-name" style={{ display: 'block', fontWeight: '700' }}>Md Ekbal</span>
+                <span className="admin-name" style={{ display: 'block', fontWeight: '700' }}>Zainul Abideen</span>
                 <span className="admin-sub" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Super Admin</span>
               </div>
-              <div className="admin-avatar">ME</div>
+              <div className="admin-avatar" style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#ffffff', fontWeight: 800 }}>ZA</div>
             </div>
           </header>
           {renderAdminContent()}
@@ -1585,21 +1817,22 @@ const App = () => {
                     <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>Active journalists, verified researchers, and fact-checking analysts.</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                       {[
-                        { name: "Md Ekbal", role: "Super Admin", verified: "Lead System Architect" },
-                        { name: "Rohit Sharma", role: "Senior Editor", verified: "Press Bureau Investigator" },
-                        { name: "Ananya Iyer", role: "Fact Checker", verified: "Media Literacy Research" }
+                        { name: "Zainul Abideen", role: "Super Admin", verified: "Lead Verifier & Platform Architect", email: "zainulcorp71@gmail.com" },
+                        { name: "Md Ekbal", role: "Core Admin", verified: "Lead System Architect", email: "imd8351087@gmail.com" },
+                        { name: "Rohit Sharma", role: "Senior Editor", verified: "Press Bureau Investigator", email: "rohit.sharma@pressbureau.in" },
+                        { name: "Ananya Iyer", role: "Fact Checker", verified: "Media Literacy Research", email: "ananya@indiamedia.org" }
                       ].map((u, idx) => (
                         <div key={idx} style={{ padding: '1rem', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
+                            <div style={{ width: 36, height: 36, borderRadius: '50%', background: u.role === 'Super Admin' ? 'linear-gradient(135deg, #3b82f6, #8b5cf6)' : 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#ffffff' }}>
                               {u.name.charAt(0)}
                             </div>
                             <div>
                               <strong style={{ display: 'block', fontSize: '0.92rem' }}>{u.name}</strong>
-                              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{u.verified}</span>
+                              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{u.verified} • <span style={{ color: 'var(--accent-secondary)' }}>{u.email}</span></span>
                             </div>
                           </div>
-                          <span className="badge">{u.role}</span>
+                          <span className="badge" style={{ background: u.role === 'Super Admin' ? 'rgba(34,197,94,0.18)' : undefined, color: u.role === 'Super Admin' ? '#4ade80' : undefined }}>{u.role}</span>
                         </div>
                       ))}
                     </div>
@@ -1925,7 +2158,7 @@ const App = () => {
               <p><strong>Educational & Public Verification Platform:</strong> SRA TruthGuard operates as an open media literacy and AI-assisted fact-checking engine.</p>
               <p><strong>Fair Use Policy:</strong> We index news snippets, titles, and thumbnails under fair-use guidelines to provide non-commercial truth analysis.</p>
               <p><strong>Intellectual Property:</strong> Rights to external news articles remain with NDTV, BBC, CNN, and original publishers.</p>
-              <p style={{ marginTop: '1rem' }}>Contact: <u>zainul7abideen@gmail.com</u></p>
+              <p style={{ marginTop: '1rem' }}>Contact & Verification Admin: <u>zainulcorp71@gmail.com</u></p>
               <button className="btn-primary" style={{ marginTop: '1.5rem' }} onClick={() => setShowLegalModal(false)}>I Understand</button>
             </div>
           </div>
@@ -1939,9 +2172,9 @@ const App = () => {
           <div className="footer-links">
             <span className="footer-link" onClick={() => setView('admin')}>Staff Login</span>
             <span className="footer-link" onClick={() => setShowLegalModal(true)}>Legal Disclaimer</span>
-            <a href="https://sra-truthguard.pages.dev/" target="_blank" rel="noopener noreferrer" className="footer-link">⚡ Cloudflare App</a>
+            <a href="https://news-verifier.sra-news-verifier.workers.dev" target="_blank" rel="noopener noreferrer" className="footer-link">⚡ Cloudflare App</a>
             <a href="https://chimerical-boba-ea62fe.netlify.app/" target="_blank" rel="noopener noreferrer" className="footer-link">🌐 Netlify App</a>
-            <a href="mailto:zainul7abideen@gmail.com" className="footer-link">Support</a>
+            <a href="mailto:zainulcorp71@gmail.com" className="footer-link">Support: zainulcorp71@gmail.com</a>
           </div>
         </div>
       </footer>
