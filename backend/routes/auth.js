@@ -1,9 +1,72 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database/db');
+const { sendOtpEmail, SENDER_EMAIL } = require('../services/mailer');
 
 // In-memory store for reset verification OTPs
 const otpStore = new Map();
+
+// POST /api/auth/send-otp (Dynamic OTP for registration, forgot-password, or email verification)
+router.post('/send-otp', async (req, res) => {
+  const { email, purpose, userName } = req.body;
+  if (!email) {
+    return res.status(400).json({ success: false, message: 'Email address is required.' });
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  // Generate brand new 6-digit random OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  otpStore.set(`${cleanEmail}_${purpose || 'general'}`, {
+    otp,
+    email: cleanEmail,
+    purpose: purpose || 'general',
+    expiresAt,
+    createdAt: Date.now()
+  });
+
+  // Attempt sending via Nodemailer / SMTP
+  const mailResult = await sendOtpEmail(cleanEmail, otp, purpose || 'Verification', userName);
+
+  return res.status(200).json({
+    success: true,
+    message: `Verification code sent to ${cleanEmail} from ${SENDER_EMAIL}`,
+    email: cleanEmail,
+    sender: SENDER_EMAIL,
+    otpPreview: otp,
+    expiresAt,
+    mailDispatched: mailResult.success
+  });
+});
+
+// POST /api/auth/verify-otp
+router.post('/verify-otp', (req, res) => {
+  const { email, otp, purpose } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  const sessionKey = `${cleanEmail}_${purpose || 'general'}`;
+  const record = otpStore.get(sessionKey);
+
+  if (!record) {
+    return res.status(400).json({ success: false, message: 'No active OTP session found. Please request a new code.' });
+  }
+
+  if (Date.now() > record.expiresAt) {
+    otpStore.delete(sessionKey);
+    return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new code.' });
+  }
+
+  if (record.otp !== otp.trim()) {
+    return res.status(400).json({ success: false, message: 'Invalid OTP code. Please try again.' });
+  }
+
+  otpStore.delete(sessionKey);
+  return res.status(200).json({ success: true, message: 'OTP verified successfully!' });
+});
 
 // POST /api/auth/login
 router.post('/login', (req, res) => {
@@ -51,8 +114,9 @@ router.post('/register', (req, res) => {
     email: cleanEmail,
     password,
     mobile: mobile || '',
-    role: cleanEmail === 'zainulcorp71@gmail.com' ? 'admin' : 'user',
+    role: 'user',
     status: 'active',
+    verified: true,
     createdAt: new Date().toISOString()
   };
 
@@ -61,13 +125,13 @@ router.post('/register', (req, res) => {
 
   return res.status(201).json({
     success: true,
-    user: { id: newUser.id, name: newUser.name, username: newUser.username, email: newUser.email, role: newUser.role, status: newUser.status },
+    user: { id: newUser.id, name: newUser.name, username: newUser.username, email: newUser.email, role: newUser.role, status: newUser.status, verified: newUser.verified },
     token: `jwt_mock_${Date.now()}_${newUser.id}`
   });
 });
 
 // POST /api/auth/forgot-password
-router.post('/forgot-password', (req, res) => {
+router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ success: false, message: 'Email address is required.' });
@@ -77,15 +141,18 @@ router.post('/forgot-password', (req, res) => {
   const data = db.read();
   const user = data.users.find(u => u.email?.toLowerCase() === cleanEmail);
 
-  // Generate 6-digit OTP
+  // Generate 6-digit dynamic random OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore.set(cleanEmail, { otp, expiresAt: Date.now() + 15 * 60 * 1000 });
+  otpStore.set(`${cleanEmail}_forgot_password`, { otp, expiresAt: Date.now() + 10 * 60 * 1000 });
+
+  await sendOtpEmail(cleanEmail, otp, 'forgot_password', user ? user.name : '');
 
   return res.status(200).json({
     success: true,
-    message: `Verification code sent to ${cleanEmail}`,
+    message: `Verification code sent to ${cleanEmail} from ${SENDER_EMAIL}`,
     email: cleanEmail,
-    otpPreview: otp, // Returned for instant verification UI preview
+    sender: SENDER_EMAIL,
+    otpPreview: otp,
     userExists: Boolean(user)
   });
 });
@@ -98,10 +165,10 @@ router.post('/reset-password', (req, res) => {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  const record = otpStore.get(cleanEmail);
+  const sessionKey = `${cleanEmail}_forgot_password`;
+  const record = otpStore.get(sessionKey);
 
-  // Verify OTP (allow '710143' or universal test code '123456' as well as matched session OTP)
-  if (!record || (record.otp !== otp && otp !== '710143' && otp !== '123456')) {
+  if (!record || record.otp !== otp.trim()) {
     return res.status(400).json({ success: false, message: 'Invalid or expired verification code.' });
   }
 
@@ -112,7 +179,7 @@ router.post('/reset-password', (req, res) => {
     db.write(data);
   }
 
-  otpStore.delete(cleanEmail);
+  otpStore.delete(sessionKey);
 
   return res.status(200).json({
     success: true,
@@ -121,4 +188,5 @@ router.post('/reset-password', (req, res) => {
 });
 
 module.exports = router;
+
 

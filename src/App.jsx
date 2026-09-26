@@ -120,26 +120,33 @@ const App = () => {
   const [showLegalModal, setShowLegalModal] = useState(false);
 
   // Dedicated Auth Form States
-  const [loginIdentifier, setLoginIdentifier] = useState('zainulcorp71@gmail.com');
-  const [loginPassword, setLoginPassword] = useState('Zainul.@143');
+  const [loginIdentifier, setLoginIdentifier] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
-  const [regFullName, setRegFullName] = useState('Zainul Abideen');
-  const [regUsername, setRegUsername] = useState('zainulcorp71');
-  const [regEmail, setRegEmail] = useState('zainulcorp71@gmail.com');
-  const [regMobile, setRegMobile] = useState('+91 98765 43210');
-  const [regPassword, setRegPassword] = useState('Zainul.@143');
-  const [regConfirmPassword, setRegConfirmPassword] = useState('Zainul.@143');
+  // Registration Form States
+  const [regFullName, setRegFullName] = useState('');
+  const [regUsername, setRegUsername] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regMobile, setRegMobile] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [regStep, setRegStep] = useState(1);
+  const [regOtp, setRegOtp] = useState('');
+  const [regOtpPreview, setRegOtpPreview] = useState('');
+  const [regCooldown, setRegCooldown] = useState(0);
 
-  const [adminStaffId, setAdminStaffId] = useState('zainulcorp71@gmail.com');
-  const [adminStaffPass, setAdminStaffPass] = useState('Zainul.@143');
+  // Staff / Admin Form States
+  const [adminStaffId, setAdminStaffId] = useState('admin');
+  const [adminStaffPass, setAdminStaffPass] = useState('Admin@SecurePass2026');
 
   // Forgot Password / Verification States
-  const [forgotEmail, setForgotEmail] = useState('zainulcorp71@gmail.com');
+  const [forgotEmail, setForgotEmail] = useState('');
   const [forgotOtp, setForgotOtp] = useState('');
   const [forgotNewPassword, setForgotNewPassword] = useState('');
   const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
   const [forgotStep, setForgotStep] = useState(1);
   const [otpPreview, setOtpPreview] = useState('');
+  const [forgotCooldown, setForgotCooldown] = useState(0);
   const [copiedOtp, setCopiedOtp] = useState(false);
 
   const [authError, setAuthError] = useState('');
@@ -156,6 +163,15 @@ const App = () => {
     const saved = localStorage.getItem('sra_admin_credentials');
     return saved ? JSON.parse(saved) : DEFAULT_ADMIN;
   });
+
+  // Countdown timer for OTP resend cooldowns
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRegCooldown(prev => (prev > 0 ? prev - 1 : 0));
+      setForgotCooldown(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const categories = ['All', 'News Channels', 'Newspapers', 'Radio', 'Social Media', 'International'];
 
@@ -315,21 +331,17 @@ const App = () => {
       setForgotNewPassword('');
       setForgotConfirmPassword('');
       setOtpPreview('');
+    } else if (newView === 'registration') {
+      setRegStep(1);
+      setRegOtp('');
+      setRegOtpPreview('');
     }
   };
 
   const fillDemoAccount = (role) => {
     setAuthError('');
     setAuthSuccess('');
-    if (role === 'zainul-admin') {
-      if (view === 'admin') {
-        setAdminStaffId('zainulcorp71@gmail.com');
-        setAdminStaffPass('Zainul.@143');
-      } else {
-        setLoginIdentifier('zainulcorp71@gmail.com');
-        setLoginPassword('Zainul.@143');
-      }
-    } else if (role === 'admin') {
+    if (role === 'admin') {
       if (view === 'admin') {
         setAdminStaffId('admin');
         setAdminStaffPass('Admin@SecurePass2026');
@@ -343,34 +355,62 @@ const App = () => {
     } else if (role === 'user') {
       setLoginIdentifier('ananya@indiamedia.org');
       setLoginPassword('User@123');
+    } else if (role === 'sample-reg') {
+      setRegFullName('Alex Morgan');
+      setRegUsername('alexmorgan');
+      setRegEmail('alex.morgan@pressnetwork.org');
+      setRegMobile('+91 98765 00001');
+      setRegPassword('Secure@1234');
+      setRegConfirmPassword('Secure@1234');
     }
   };
 
-  const handleRegisterSubmit = async (e) => {
+  // Step 1: Request Dynamic OTP for Registration
+  const handleRequestRegOtp = async (e) => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccess('');
 
-    if (regPassword !== regConfirmPassword) {
-      setAuthError('Passwords do not match. Please re-enter.');
-      return;
-    }
-    if (regPassword.length < 6) {
-      setAuthError('Password must be at least 6 characters.');
-      return;
-    }
+    if (!regFullName.trim()) return setAuthError('Please enter your full name.');
+    if (!regUsername.trim()) return setAuthError('Please enter a username.');
+    if (!regEmail.trim()) return setAuthError('Please enter your email address.');
+    if (regPassword !== regConfirmPassword) return setAuthError('Passwords do not match. Please check.');
+    if (regPassword.length < 6) return setAuthError('Password must be at least 6 characters.');
 
     setIsAuthLoading(true);
     try {
-      await api.register(regFullName, regUsername, regEmail, regPassword, regMobile);
-      setAuthSuccess('🎉 Registration verified & created! Redirecting to login...');
-      setLoginIdentifier(regEmail || regUsername);
+      const res = await api.requestRegistrationOtp(regEmail, regFullName);
+      setRegOtpPreview(res.otpPreview);
+      setRegOtp(res.otpPreview); // Auto-filled for instant testing convenience
+      setRegCooldown(30);
+      setRegStep(2);
+      setAuthSuccess(`📧 Verification code dispatched from ${api.SENDER_EMAIL} to ${regEmail}`);
+    } catch (err) {
+      setAuthError(err.message || 'Failed to dispatch verification email.');
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
+  // Step 2: Verify Dynamic OTP and Complete Registration
+  const handleVerifyAndRegister = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthSuccess('');
+
+    if (!regOtp.trim()) return setAuthError('Please enter the 6-digit verification code.');
+
+    setIsAuthLoading(true);
+    try {
+      await api.register(regFullName, regUsername, regEmail, regPassword, regMobile, regOtp);
+      setAuthSuccess(`🎉 Email verified & account created! Logging you in...`);
+      setLoginIdentifier(regEmail);
       setLoginPassword(regPassword);
       setTimeout(() => {
         setView('login');
       }, 1000);
     } catch (err) {
-      setAuthError(err.message || 'Registration failed.');
+      setAuthError(err.message || 'Registration verification failed.');
     } finally {
       setIsAuthLoading(false);
     }
@@ -413,18 +453,6 @@ const App = () => {
 
     const cleanId = adminStaffId.trim().toLowerCase();
 
-    // Check Zainul Abideen Admin credentials
-    if ((cleanId === 'zainulcorp71@gmail.com' || cleanId === 'zainul' || cleanId === 'zainulcorp71') && adminStaffPass === 'Zainul.@143') {
-      const zainulAdmin = { id: 'usr-zainul', name: 'Zainul Abideen', username: 'zainulcorp71', role: 'admin', email: 'zainulcorp71@gmail.com' };
-      setUser(zainulAdmin);
-      localStorage.setItem('sra_user', JSON.stringify(zainulAdmin));
-      setAuthSuccess('Zainul Abideen verified as Super Admin. Accessing Admin Console...');
-      setTimeout(() => {
-        setView('admin-panel');
-      }, 600);
-      return;
-    }
-
     if ((cleanId === adminSettings.userId.toLowerCase() || cleanId === 'admin' || cleanId === 'imd8351087@gmail.com') && adminStaffPass === adminSettings.password) {
       const adminUser = { id: 'usr-admin-1', name: 'Md Ekbal', username: 'admin', role: 'admin', email: 'imd8351087@gmail.com' };
       setUser(adminUser);
@@ -438,6 +466,7 @@ const App = () => {
     }
   };
 
+  // Step 1: Request Dynamic OTP for Password Reset
   const handleRequestResetOtp = async (e) => {
     e.preventDefault();
     setAuthError('');
@@ -445,11 +474,12 @@ const App = () => {
     setIsAuthLoading(true);
 
     try {
-      const res = await api.requestPasswordReset(forgotEmail);
+      const res = await api.requestForgotPasswordOtp(forgotEmail);
       setOtpPreview(res.otpPreview);
-      setForgotOtp(res.otpPreview); // Auto-populate for user convenience
+      setForgotOtp(res.otpPreview); // Auto-populated for convenience
+      setForgotCooldown(30);
       setForgotStep(2);
-      setAuthSuccess(`✅ Security code sent to ${forgotEmail}. Please enter OTP and your new password.`);
+      setAuthSuccess(`📧 Security reset code dispatched from ${api.SENDER_EMAIL} to ${forgotEmail}`);
     } catch (err) {
       setAuthError(err.message || 'Failed to send verification code.');
     } finally {
@@ -457,6 +487,7 @@ const App = () => {
     }
   };
 
+  // Step 2: Verify Dynamic OTP and Reset Password
   const handleResetPasswordSubmit = async (e) => {
     e.preventDefault();
     setAuthError('');
@@ -500,6 +531,12 @@ const App = () => {
             <span>SRA<span className="accent">TruthGuard</span></span>
           </div>
 
+          {/* Official System Dispatcher Badge */}
+          <div style={{ padding: '0.45rem 0.85rem', borderRadius: 8, background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.25)', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: '0.76rem', color: '#e0f2fe' }}>
+            <span className="pulse" style={{ width: 6, height: 6, borderRadius: '50%', background: '#38bdf8' }}></span>
+            <span>Official OTP Sender: <strong style={{ color: '#38bdf8' }}>zainulcorp71@gmail.com</strong></span>
+          </div>
+
           {/* Tab Navigation */}
           <div className="auth-tabs">
             <button
@@ -535,17 +572,9 @@ const App = () => {
           {/* Quick Demo Accounts Bar */}
           <div className="demo-accounts-bar">
             <div className="demo-header">
-              <Sparkles size={13} /> Quick Fill Verified Credentials:
+              <Sparkles size={13} /> Quick Fill Demo Credentials:
             </div>
             <div className="demo-chips">
-              <button
-                type="button"
-                className="demo-chip active-chip"
-                onClick={() => fillDemoAccount('zainul-admin')}
-                title="Primary Administrator (Zainul Abideen)"
-              >
-                👑 Zainul (Admin)
-              </button>
               <button
                 type="button"
                 className="demo-chip"
@@ -569,6 +598,14 @@ const App = () => {
                 title="Standard User"
               >
                 👤 User (Ananya)
+              </button>
+              <button
+                type="button"
+                className="demo-chip"
+                onClick={() => fillDemoAccount('sample-reg')}
+                title="Auto-fill sample data for new user registration"
+              >
+                ⚡ Fast-Fill (Alex)
               </button>
             </div>
           </div>
@@ -597,7 +634,7 @@ const App = () => {
                   <Mail size={18} className="input-icon" />
                   <input
                     type="text"
-                    placeholder="Email or Username (e.g. zainulcorp71@gmail.com)"
+                    placeholder="Email or Username"
                     required
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
@@ -653,7 +690,7 @@ const App = () => {
           {/* VIEW: FORGOT PASSWORD */}
           {view === 'forgot-password' && (
             <>
-              <p className="subtitle">Reset your account credentials via security verification code.</p>
+              <p className="subtitle">Reset your password with a dynamic 6-digit verification code sent from <strong>{api.SENDER_EMAIL}</strong>.</p>
               
               {forgotStep === 1 ? (
                 <form onSubmit={handleRequestResetOtp}>
@@ -661,7 +698,7 @@ const App = () => {
                     <Mail size={18} className="input-icon" />
                     <input
                       type="email"
-                      placeholder="Registered Email (e.g. zainulcorp71@gmail.com)"
+                      placeholder="Your Registered Email Address"
                       required
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
@@ -671,11 +708,11 @@ const App = () => {
                   <button type="submit" className="nexus-btn-primary" disabled={isAuthLoading}>
                     {isAuthLoading ? (
                       <>
-                        <RefreshCw size={16} className="spin-icon" /> Sending Code...
+                        <RefreshCw size={16} className="spin-icon" /> Sending OTP via {api.SENDER_EMAIL}...
                       </>
                     ) : (
                       <>
-                        <Send size={16} /> Send 6-Digit Verification Code
+                        <Send size={16} /> Send 6-Digit Password Reset OTP
                       </>
                     )}
                   </button>
@@ -685,7 +722,7 @@ const App = () => {
                   {otpPreview && (
                     <div style={{ padding: '0.75rem', borderRadius: 8, background: 'rgba(56,189,248,0.12)', border: '1px solid var(--accent-primary)', marginBottom: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.82rem', color: '#e0f2fe' }}>
-                        🔑 Verification OTP for <strong>{forgotEmail}</strong>: <strong style={{ color: '#38bdf8', letterSpacing: 1.5, fontSize: '0.95rem' }}>{otpPreview}</strong>
+                        🔑 Dynamic OTP for <strong>{forgotEmail}</strong>: <strong style={{ color: '#38bdf8', letterSpacing: 2, fontSize: '1rem' }}>{otpPreview}</strong>
                       </span>
                       <button
                         type="button"
@@ -705,7 +742,7 @@ const App = () => {
                     <KeyRound size={18} className="input-icon" />
                     <input
                       type="text"
-                      placeholder="Enter 6-Digit OTP Code"
+                      placeholder="Enter 6-Digit Security OTP"
                       required
                       maxLength={6}
                       value={forgotOtp}
@@ -752,20 +789,28 @@ const App = () => {
                   <button type="submit" className="nexus-btn-primary" disabled={isAuthLoading}>
                     {isAuthLoading ? (
                       <>
-                        <RefreshCw size={16} className="spin-icon" /> Updating Password...
+                        <RefreshCw size={16} className="spin-icon" /> Verifying Code & Resetting...
                       </>
                     ) : (
-                      'Reset Password & Sign In'
+                      'Verify Code & Reset Password'
                     )}
                   </button>
 
-                  <div style={{ textAlign: 'center', marginTop: '0.6rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.8rem', fontSize: '0.8rem' }}>
                     <span
-                      style={{ fontSize: '0.8rem', color: 'var(--text-muted)', cursor: 'pointer' }}
+                      style={{ color: 'var(--text-muted)', cursor: 'pointer' }}
                       onClick={() => setForgotStep(1)}
                     >
-                      ← Re-enter Email Address
+                      ← Edit Email Address
                     </span>
+                    <button
+                      type="button"
+                      disabled={forgotCooldown > 0 || isAuthLoading}
+                      onClick={handleRequestResetOtp}
+                      style={{ color: forgotCooldown > 0 ? 'var(--text-muted)' : 'var(--accent-secondary)', fontWeight: 600, cursor: forgotCooldown > 0 ? 'not-allowed' : 'pointer' }}
+                    >
+                      {forgotCooldown > 0 ? `Resend OTP (${forgotCooldown}s)` : 'Resend OTP'}
+                    </button>
                   </div>
                 </form>
               )}
@@ -780,98 +825,168 @@ const App = () => {
           {/* VIEW: REGISTRATION */}
           {view === 'registration' && (
             <>
-              <p className="subtitle">Join the SRA TruthGuard media verification network.</p>
-              <form onSubmit={handleRegisterSubmit}>
-                <div className="form-row">
+              <p className="subtitle">Join the SRA TruthGuard media verification network with verified email security.</p>
+              
+              {regStep === 1 ? (
+                <form onSubmit={handleRequestRegOtp}>
+                  <div className="form-row">
+                    <div className="input-group">
+                      <User size={18} className="input-icon" />
+                      <input
+                        type="text"
+                        placeholder="Full Name"
+                        required
+                        value={regFullName}
+                        onChange={(e) => setRegFullName(e.target.value)}
+                      />
+                    </div>
+                    <div className="input-group">
+                      <User size={18} className="input-icon" />
+                      <input
+                        type="text"
+                        placeholder="Username"
+                        required
+                        value={regUsername}
+                        onChange={(e) => setRegUsername(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
                   <div className="input-group">
-                    <User size={18} className="input-icon" />
+                    <Mail size={18} className="input-icon" />
                     <input
-                      type="text"
-                      placeholder="Full Name"
+                      type="email"
+                      placeholder="Your Email Address (will receive OTP)"
                       required
-                      value={regFullName}
-                      onChange={(e) => setRegFullName(e.target.value)}
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
                     />
                   </div>
+
                   <div className="input-group">
-                    <User size={18} className="input-icon" />
+                    <Phone size={18} className="input-icon" />
                     <input
-                      type="text"
-                      placeholder="Username"
-                      required
-                      value={regUsername}
-                      onChange={(e) => setRegUsername(e.target.value)}
+                      type="tel"
+                      placeholder="Mobile Number (Optional)"
+                      value={regMobile}
+                      onChange={(e) => setRegMobile(e.target.value)}
                     />
                   </div>
-                </div>
 
-                <div className="input-group">
-                  <Mail size={18} className="input-icon" />
-                  <input
-                    type="email"
-                    placeholder="Email Address"
-                    required
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                  />
-                </div>
+                  <div className="input-group">
+                    <Lock size={18} className="input-icon" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Password (min. 6 characters)"
+                      required
+                      value={regPassword}
+                      onChange={(e) => setRegPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="toggle-pw-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
 
-                <div className="input-group">
-                  <Phone size={18} className="input-icon" />
-                  <input
-                    type="tel"
-                    placeholder="Mobile Number (Optional)"
-                    value={regMobile}
-                    onChange={(e) => setRegMobile(e.target.value)}
-                  />
-                </div>
+                  <div className="input-group">
+                    <Lock size={18} className="input-icon" />
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm Password"
+                      required
+                      value={regConfirmPassword}
+                      onChange={(e) => setRegConfirmPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="toggle-pw-btn"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
 
-                <div className="input-group">
-                  <Lock size={18} className="input-icon" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Password (min. 6 characters)"
-                    required
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className="toggle-pw-btn"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  <button type="submit" className="nexus-btn-primary" disabled={isAuthLoading}>
+                    {isAuthLoading ? (
+                      <>
+                        <RefreshCw size={16} className="spin-icon" /> Sending OTP via {api.SENDER_EMAIL}...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={16} /> Send Email Verification OTP
+                      </>
+                    )}
                   </button>
-                </div>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyAndRegister}>
+                  <div style={{ padding: '0.85rem', borderRadius: 8, background: 'rgba(56,189,248,0.12)', border: '1px solid var(--accent-primary)', marginBottom: '1rem' }}>
+                    <div style={{ fontSize: '0.8rem', color: '#e0f2fe', marginBottom: 4 }}>
+                      📧 Verification OTP sent from <strong>{api.SENDER_EMAIL}</strong> to <strong>{regEmail}</strong>
+                    </div>
+                    {regOtpPreview && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+                        <span style={{ fontSize: '0.84rem', color: '#93c5fd' }}>
+                          🔑 Code: <strong style={{ color: '#ffffff', letterSpacing: 2, fontSize: '1rem' }}>{regOtpPreview}</strong>
+                        </span>
+                        <button
+                          type="button"
+                          style={{ fontSize: '0.75rem', background: 'var(--accent-primary)', padding: '0.25rem 0.6rem', borderRadius: 4, color: '#ffffff', fontWeight: 600 }}
+                          onClick={() => {
+                            setRegOtp(regOtpPreview);
+                            setCopiedOtp(true);
+                            setTimeout(() => setCopiedOtp(false), 2000);
+                          }}
+                        >
+                          {copiedOtp ? '✓ Filled' : 'Auto-Fill'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
-                <div className="input-group">
-                  <Lock size={18} className="input-icon" />
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Confirm Password"
-                    required
-                    value={regConfirmPassword}
-                    onChange={(e) => setRegConfirmPassword(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className="toggle-pw-btn"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  <div className="input-group">
+                    <KeyRound size={18} className="input-icon" />
+                    <input
+                      type="text"
+                      placeholder="Enter 6-Digit Email Verification Code"
+                      required
+                      maxLength={6}
+                      value={regOtp}
+                      onChange={(e) => setRegOtp(e.target.value)}
+                    />
+                  </div>
+
+                  <button type="submit" className="nexus-btn-primary" disabled={isAuthLoading}>
+                    {isAuthLoading ? (
+                      <>
+                        <RefreshCw size={16} className="spin-icon" /> Validating Code & Creating Account...
+                      </>
+                    ) : (
+                      'Verify Code & Complete Registration'
+                    )}
                   </button>
-                </div>
 
-                <button type="submit" className="nexus-btn-primary" disabled={isAuthLoading}>
-                  {isAuthLoading ? (
-                    <>
-                      <RefreshCw size={16} className="spin-icon" /> Verifying & Creating Account...
-                    </>
-                  ) : (
-                    'Verify & Create Account'
-                  )}
-                </button>
-              </form>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.8rem', fontSize: '0.8rem' }}>
+                    <span
+                      style={{ color: 'var(--text-muted)', cursor: 'pointer' }}
+                      onClick={() => setRegStep(1)}
+                    >
+                      ← Edit Registration Details
+                    </span>
+                    <button
+                      type="button"
+                      disabled={regCooldown > 0 || isAuthLoading}
+                      onClick={handleRequestRegOtp}
+                      style={{ color: regCooldown > 0 ? 'var(--text-muted)' : 'var(--accent-secondary)', fontWeight: 600, cursor: regCooldown > 0 ? 'not-allowed' : 'pointer' }}
+                    >
+                      {regCooldown > 0 ? `Resend Code (${regCooldown}s)` : 'Resend Code'}
+                    </button>
+                  </div>
+                </form>
+              )}
 
               <p className="auth-footer">
                 Already registered?
@@ -883,13 +998,13 @@ const App = () => {
           {/* VIEW: STAFF ACCESS */}
           {view === 'admin' && (
             <>
-              <p className="subtitle">Authorized personnel only. Enter Staff credentials.</p>
+              <p className="subtitle">Authorized institutional personnel only. Enter Staff credentials.</p>
               <form onSubmit={handleAdminSubmit}>
                 <div className="input-group">
                   <User size={18} className="input-icon" />
                   <input
                     type="text"
-                    placeholder="Staff ID / Email (e.g. zainulcorp71@gmail.com)"
+                    placeholder="Staff ID (e.g. admin)"
                     required
                     value={adminStaffId}
                     onChange={(e) => setAdminStaffId(e.target.value)}
