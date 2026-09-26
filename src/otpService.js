@@ -102,6 +102,38 @@ export const otpService = {
       timestamp: new Date().toISOString()
     };
 
+    // EmailJS Browser SDK Dispatch (if configured)
+    const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const emailJsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const emailJsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    let emailJsSent = false;
+    if (emailJsServiceId && emailJsTemplateId && emailJsPublicKey) {
+      try {
+        const emailjs = await import('@emailjs/browser');
+        await emailjs.default.send(
+          emailJsServiceId,
+          emailJsTemplateId,
+          {
+            to_email: cleanEmail,
+            to_name: metadata.userName || cleanEmail.split('@')[0],
+            otp: newOtp,
+            passcode: newOtp,
+            otp_code: newOtp,
+            purpose: purpose.replace('_', ' ').toUpperCase(),
+            from_name: SENDER_NAME,
+            sender_email: SENDER_EMAIL,
+            message: `Your SRA TruthGuard security verification OTP is: ${newOtp} (valid for 10 minutes).`
+          },
+          emailJsPublicKey
+        );
+        emailJsSent = true;
+        console.log(`[EmailJS] OTP email successfully dispatched to ${cleanEmail}`);
+      } catch (e) {
+        console.warn('[EmailJS] Could not send via EmailJS:', e);
+      }
+    }
+
     // Try backend live email dispatch if server is running
     try {
       fetch('/api/auth/send-otp', {
